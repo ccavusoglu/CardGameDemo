@@ -22,9 +22,6 @@ import java.util.List;
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
 public class MainController {
-    // TODO: gameType or Config
-    public static final int HAND_SIZE = 11;
-
     private IHandLayout handLayout;
     private CardGameDemo    cardGameDemo;
     private SortHelper sortHelper;
@@ -36,13 +33,12 @@ public class MainController {
     }
 
     public void prepareGameScreen(Stage stage, AssetHelper assetHelper) {
-        List<Vector3> positions = handLayout.prepareLayout(HAND_SIZE);
+        List<Vector3> positions = handLayout.prepareLayout(cardGameDemo.getGame().getHandSize());
 
-        Deck deck = cardGameDemo.getGame().generateDeck();
-        Hand hand = sortHelper.sortInOrder(deck);
+        Hand hand = sortHelper.sortInOrder(cardGameDemo.getGame().draw());
 
-        for (int i = 0; i < HAND_SIZE; i++) {
-            CardActor cardActor = new CardActor(positions.get(i), handLayout.getCardWidth(), hand.getCardsOrdered().get(i), assetHelper);
+        for (int i = 0; i < cardGameDemo.getGame().getHandSize(); i++) {
+            CardActor cardActor = new CardActor(positions.get(i), handLayout.getCardWidth(), hand.getCards().get(i), assetHelper);
 
             stage.addActor(cardActor);
         }

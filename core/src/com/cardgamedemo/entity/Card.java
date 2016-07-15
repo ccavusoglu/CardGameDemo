@@ -9,6 +9,7 @@ public class Card {
     private Enums.SuitType suitType;
     private int            point;
     private Enums.CardType cardType;
+    private int sortIndex = 0;
 
     public Card(Enums.SuitType suitType, int point, Enums.CardType cardType) {
         this.suitType = suitType;
@@ -26,5 +27,13 @@ public class Card {
 
     public Enums.SuitType getSuitType() {
         return suitType;
+    }
+
+    public void setSortIndex() {
+
+    }
+
+    public int getSortIndex() {
+        return sortIndex;
     }
 }

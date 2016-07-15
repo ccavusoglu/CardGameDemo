@@ -28,7 +28,7 @@ public class AssetHelper {
     private TextureRegion loadingBar;
     private BitmapFont    black50;
     private BitmapFont    white60;
-    private BitmapFont    white36;
+    private BitmapFont    black26;
 
     private TextureRegion cardBack;
 
@@ -69,10 +69,10 @@ public class AssetHelper {
         return black50;
     }
 
-    public BitmapFont getFontWhite36() {
-        if (white36 == null) white36 = assetManager.get("images/36pt.fnt", BitmapFont.class);
+    public BitmapFont getFontBlack26() {
+        if (black26 == null) black26 = assetManager.get("images/26pt_black.fnt", BitmapFont.class);
 
-        return white36;
+        return black26;
     }
 
     public BitmapFont getFontWhite60() {
@@ -103,7 +103,7 @@ public class AssetHelper {
         assetManager.load("images/Cards.atlas", TextureAtlas.class);
         assetManager.load("images/Table.png", Texture.class);
         assetManager.load("images/Button.png", Texture.class);
-        assetManager.load("images/36pt.fnt", BitmapFont.class);
+        assetManager.load("images/26pt_black.fnt", BitmapFont.class);
         assetManager.load("images/60pt.fnt", BitmapFont.class);
     }
 
