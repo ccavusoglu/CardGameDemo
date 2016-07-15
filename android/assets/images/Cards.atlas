@@ -1,0 +1,138 @@
+
+Cards.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+CLUBSBASE
+  rotate: false
+  xy: 2, 2
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+CLUBSJACK
+  rotate: false
+  xy: 185, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+CLUBSKING
+  rotate: false
+  xy: 366, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+CLUBSQUEEN
+  rotate: false
+  xy: 547, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+DIAMONDS
+  rotate: false
+  xy: 728, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+DIAMONDSJACK
+  rotate: false
+  xy: 909, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+DIAMONDSKING
+  rotate: false
+  xy: 1090, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+DIAMONDSQUEEN
+  rotate: false
+  xy: 1271, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+HEARTSBASE
+  rotate: false
+  xy: 1452, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+HEARTSJACK
+  rotate: false
+  xy: 1633, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+HEARTSKING
+  rotate: false
+  xy: 1814, 230
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+HEARTSQUEEN
+  rotate: false
+  xy: 183, 2
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+SPADESBASE
+  rotate: false
+  xy: 364, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+SPADESJACK
+  rotate: false
+  xy: 545, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+SPADESKING
+  rotate: false
+  xy: 726, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+SPADESQUEEN
+  rotate: false
+  xy: 907, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+card_back
+  rotate: false
+  xy: 1088, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
+emptyCard
+  rotate: false
+  xy: 2, 227
+  size: 181, 226
+  orig: 181, 226
+  offset: 0, 0
+  index: -1
+shadedCard
+  rotate: false
+  xy: 1269, 5
+  size: 179, 223
+  orig: 179, 223
+  offset: 0, 0
+  index: -1
