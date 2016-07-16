@@ -36,6 +36,8 @@ public class GameScreen extends AbstractScreen {
         stage.addActor(imgTable);
 
         mainController.prepareGameScreen(stage, assetHelper);
+
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override

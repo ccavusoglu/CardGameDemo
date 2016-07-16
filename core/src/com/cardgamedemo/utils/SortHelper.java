@@ -30,7 +30,11 @@ public class SortHelper {
         }
     }
 
-    public Hand sortInGroups(Deck deck) {
+    public Hand sortSmart(List<Card> cards) {
+        return null;
+    }
+
+    public Hand sortInGroups(List<Card> cards) {
         return null;
     }
 

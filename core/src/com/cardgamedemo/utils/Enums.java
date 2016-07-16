@@ -11,4 +11,8 @@ public class Enums {
     public enum CardType {
         BASE, JACK, QUEEN, KING
     }
+
+    public enum ButtonType {
+        DECK, DRAW_ORDER, DRAW_GROUP, DRAW_SMART
+    }
 }

@@ -6,10 +6,8 @@ import java.util.List;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+// TODO: bu class'ı niye koymuştum :S
 public class HandActor {
-    private List<CardActor> cardActors;
-
     public HandActor() {
-        cardActors = new ArrayList<CardActor>();
     }
 }
