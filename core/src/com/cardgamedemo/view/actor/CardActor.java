@@ -1,29 +1,32 @@
 package com.cardgamedemo.view.actor;
 
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.utils.AssetHelper;
 
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
-public class CardActor extends Group implements InputProcessor {
-    private final float         tiltAngle;
-    private final TextureRegion cardTexture;
-    private final BitmapFont    cardFont;
-    private final Card          card;
+public class CardActor extends Group {
+    private final float          tiltAngle;
+    private final TextureRegion  cardTexture;
+    private final BitmapFont     cardFont;
+    private final Card           card;
+    private final MainController mainController;
 
-    public CardActor(Vector3 pos, float w, final Card card, AssetHelper assetHelper) {
+    public CardActor(MainController mainController, Vector3 pos, float w, final Card card, AssetHelper assetHelper) {
         tiltAngle = pos.z;
         this.card = card;
+        this.mainController = mainController;
 
         cardTexture = assetHelper.getCard(card.getSuitType(), card.getCardType());
         cardFont = assetHelper.getFontBlack26();
@@ -35,16 +38,21 @@ public class CardActor extends Group implements InputProcessor {
         Actor cardPointActor = new Actor() {
             @Override
             public void draw(Batch batch, float parentAlpha) {
-                cardFont.draw(batch, card.getPoint() + "", 32, getParent().getHeight() - 8);
+                cardFont.draw(batch, card.getPointString(), 12, getParent().getHeight() - 4);
             }
         };
 
         addActor(cardPointActor);
-        debugAll();
-    }
+        addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                setClicked();
 
-    public void setNewPosition() {
-        // change tiltAngle etc.
+                return true;
+            }
+        });
+
+        debugAll();
     }
 
     @Override
@@ -58,43 +66,14 @@ public class CardActor extends Group implements InputProcessor {
         super.draw(batch, parentAlpha);
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
+    public void setClicked() {
+        Gdx.app.log(getClass().getSimpleName(), "setClicked");
+        // focus on card
+        mainController.focusOn(this);
     }
 
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
+    public void setNewPosition() {
+        Gdx.app.log(getClass().getSimpleName(), "SetNewPosition");
+        // change tiltAngle etc.
     }
 }

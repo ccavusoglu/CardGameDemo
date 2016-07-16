@@ -25,6 +25,7 @@ public class MainController {
     private IHandLayout handLayout;
     private CardGameDemo    cardGameDemo;
     private SortHelper sortHelper;
+    private HandActor handActor;
 
     public MainController(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
         this.handLayout = handLayout;
@@ -32,18 +33,23 @@ public class MainController {
         this.sortHelper = sortHelper;
     }
 
+    public void focusOn(CardActor cardActor) {
+
+    }
+
     public void prepareGameScreen(Stage stage, AssetHelper assetHelper) {
         List<Vector3> positions = handLayout.prepareLayout(cardGameDemo.getGame().getHandSize());
 
         Hand hand = sortHelper.sortInOrder(cardGameDemo.getGame().draw());
 
+        handActor = new HandActor();
+
         for (int i = 0; i < cardGameDemo.getGame().getHandSize(); i++) {
-            CardActor cardActor = new CardActor(positions.get(i), handLayout.getCardWidth(), hand.getCards().get(i), assetHelper);
+            CardActor cardActor = new CardActor(this, positions.get(i), handLayout.getCardWidth(), hand.getCards().get(i), assetHelper);
 
             stage.addActor(cardActor);
         }
 
         DeckActor deckActor = new DeckActor();
-        HandActor handActor = new HandActor();
     }
 }

@@ -100,9 +100,14 @@ public class SortHelper {
                 }
                 // last element
                 else if (j == buckets.get(i).size()) {
+                    // 3 or more ordered left
                     if (groupIndexEnd[i] == buckets.get(i).size() && curOrder > 1) {
                         sortedCards.addAll(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-                    } else spareCards.addAll(buckets.get(i));
+                    }
+                    // 1 card left
+                    else if (curOrder == 0) spareCards.add(buckets.get(i).get(j - 1));
+                    // 2 card ordered left
+                    else spareCards.addAll(buckets.get(i).subList(j - 2, j));
                 }
                 // order check for j and j+1 Card
                 else if (buckets.get(i).get(j - 1).getPoint() + 1 == buckets.get(i).get(j).getPoint()) {

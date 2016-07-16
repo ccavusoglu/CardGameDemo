@@ -8,13 +8,15 @@ import com.cardgamedemo.utils.Enums;
 public class Card {
     private Enums.SuitType suitType;
     private int            point;
+    private String         pointString;
     private Enums.CardType cardType;
     private int sortIndex = 0;
 
-    public Card(Enums.SuitType suitType, int point, Enums.CardType cardType) {
+    public Card(Enums.SuitType suitType, int point, Enums.CardType cardType, String pointString) {
         this.suitType = suitType;
         this.point = point;
         this.cardType = cardType;
+        this.pointString = pointString;
     }
 
     public Enums.CardType getCardType() {
@@ -25,15 +27,19 @@ public class Card {
         return point;
     }
 
+    public String getPointString() {
+        return pointString;
+    }
+
+    public int getSortIndex() {
+        return sortIndex;
+    }
+
     public Enums.SuitType getSuitType() {
         return suitType;
     }
 
     public void setSortIndex() {
 
-    }
-
-    public int getSortIndex() {
-        return sortIndex;
     }
 }
