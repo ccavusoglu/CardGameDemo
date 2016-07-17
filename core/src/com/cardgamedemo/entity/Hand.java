@@ -7,10 +7,8 @@ import java.util.List;
  */
 public class Hand {
     private List<Card> cardsOrdered;
-    private int        groupCount;
 
-    public Hand(List<Card> cardsOrdered, int groupCount) {
-        this.groupCount = groupCount;
+    public Hand(List<Card> cardsOrdered) {
         this.cardsOrdered = cardsOrdered;
     }
 
@@ -18,7 +16,4 @@ public class Hand {
         return cardsOrdered;
     }
 
-    public int getGroupCount() {
-        return groupCount;
-    }
 }

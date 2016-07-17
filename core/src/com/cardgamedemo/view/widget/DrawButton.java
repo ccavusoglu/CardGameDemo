@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.utils.Align;
 import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.utils.Enums;
 
@@ -28,15 +29,15 @@ public class DrawButton extends Actor {
         this.buttonType = buttonType;
 
         // TODO: move
-        if (buttonType == Enums.ButtonType.DRAW_ORDER) text = "ORDER";
-        else if (buttonType == Enums.ButtonType.DRAW_GROUP) text = "GROUP";
-        else if (buttonType == Enums.ButtonType.DRAW_SMART) text = "SMART";
+        if (buttonType == Enums.ButtonType.DRAW_ORDER) text = "1-2-3 \nSORT";
+        else if (buttonType == Enums.ButtonType.DRAW_GROUP) text = "GROUP \nSORT";
+        else if (buttonType == Enums.ButtonType.DRAW_SMART) text = "SMART \nSORT";
         else text = "";
 
         glyphLayout = new GlyphLayout();
         glyphLayout.setText(buttonFont, text);
 
-        setBounds(x - button.getRegionWidth() / 3 * 2, y, button.getRegionWidth() / 2, button.getRegionHeight() / 2);
+        setBounds(x - button.getRegionWidth() - 32, y, button.getRegionWidth(), button.getRegionHeight());
         addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -51,7 +52,7 @@ public class DrawButton extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         batch.draw(buttonBack, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
-        buttonFont.draw(batch, text, getX() + 8, getY() + glyphLayout.height);
+        buttonFont.draw(batch, text, getX() + 8, getY() + getHeight() - 16, getWidth(), Align.center, true);
     }
 
     @Override

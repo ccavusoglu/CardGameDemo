@@ -10,17 +10,27 @@ public class Card {
     private int            point;
     private String         pointString;
     private Enums.CardType cardType;
-    private int sortIndex = 0;
+    private int            order;
 
-    public Card(Enums.SuitType suitType, int point, Enums.CardType cardType, String pointString) {
+    public Card(Enums.SuitType suitType, int order, Enums.CardType cardType, String pointString) {
         this.suitType = suitType;
-        this.point = point;
+        this.order = order;
+        this.point = order > 10 ? 10 : order;
         this.cardType = cardType;
         this.pointString = pointString;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Card && suitType == ((Card) obj).getSuitType() && order == ((Card) obj).getOrder();
+    }
+
     public Enums.CardType getCardType() {
         return cardType;
+    }
+
+    public int getOrder() {
+        return order;
     }
 
     public int getPoint() {
@@ -31,15 +41,7 @@ public class Card {
         return pointString;
     }
 
-    public int getSortIndex() {
-        return sortIndex;
-    }
-
     public Enums.SuitType getSuitType() {
         return suitType;
-    }
-
-    public void setSortIndex() {
-
     }
 }

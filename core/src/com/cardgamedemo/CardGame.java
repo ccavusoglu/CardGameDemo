@@ -1,6 +1,7 @@
 package com.cardgamedemo;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.entity.Deck;
@@ -9,7 +10,9 @@ import com.cardgamedemo.view.screen.AbstractScreen;
 import com.cardgamedemo.view.screen.SplashScreen;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
@@ -18,7 +21,7 @@ public class CardGame extends Game {
     private static final int DECK_SIZE = 52;
     private static final int HAND_SIZE = 11;
     private SplashScreen splashScreen;
-    private Deck deck;
+    private Deck         deck;
 
     @Inject
     public CardGame(SplashScreen splashScreen) {
@@ -32,26 +35,34 @@ public class CardGame extends Game {
     }
 
     public List<Card> draw() {
-        Collections.shuffle(deck.getCards());
-//        Collections.binarySearch()
-        return deck.getCards().subList(0, HAND_SIZE);
+//        Collections.shuffle(deck.getCards());
+        //        Collections.binarySearch()
 
-        // TEST
-//        List<Card> cards = new ArrayList<Card>();
-//
-//        cards.add(deck.getCards().get(26));
-//        cards.add(deck.getCards().get(1));
-//        cards.add(deck.getCards().get(17));
-//        cards.add(deck.getCards().get(29));
-//        cards.add(deck.getCards().get(0));
-//        cards.add(deck.getCards().get(15));
-//        cards.add(deck.getCards().get(42));
-//        cards.add(deck.getCards().get(3));
-//        cards.add(deck.getCards().get(13));
-//        cards.add(deck.getCards().get(2));
-//        cards.add(deck.getCards().get(16));
+//        List<Card> cards = deck.getCards().subList(0, HAND_SIZE);
+
 //
 //        return cards;
+//
+//         TEST
+                List<Card> cards = new ArrayList<Card>();
+
+                cards.add(deck.getCards().get(1));
+                cards.add(deck.getCards().get(28));
+                cards.add(deck.getCards().get(2));
+                cards.add(deck.getCards().get(3));
+                cards.add(deck.getCards().get(16));
+                cards.add(deck.getCards().get(30));
+                cards.add(deck.getCards().get(7));
+                cards.add(deck.getCards().get(47));
+                cards.add(deck.getCards().get(34));
+                cards.add(deck.getCards().get(10));
+                cards.add(deck.getCards().get(37));
+
+                for (Card card : cards) {
+                    Gdx.app.log("Draw: ", card.getSuitType() + ":" + card.getOrder() + ":" + card.getPointString() + ":" + card.getPoint());
+                }
+
+                return cards;
     }
 
     public Deck generateDeck() {
@@ -59,38 +70,29 @@ public class CardGame extends Game {
 
         for (int i = 1; i < DECK_SIZE + 1; i++) {
             if (i <= 13) {
-                if (i < 11) cards.add(new Card(Enums.SuitType.SPADES, i, Enums.CardType.BASE, getPointString(i)));
-                else if (i == 11) cards.add(new Card(Enums.SuitType.SPADES, i, Enums.CardType.JACK, getPointString(i)));
-                else if (i == 12) cards.add(new Card(Enums.SuitType.SPADES, i, Enums.CardType.QUEEN, getPointString(i)));
-                else cards.add(new Card(Enums.SuitType.SPADES, i, Enums.CardType.KING, getPointString(i)));
+                if (i < 11) cards.add(new Card(Enums.SuitType.SPADES, i % 11, Enums.CardType.BASE, getOrderString(i)));
+                else if (i == 11) cards.add(new Card(Enums.SuitType.SPADES, 11, Enums.CardType.JACK, getOrderString(i)));
+                else if (i == 12) cards.add(new Card(Enums.SuitType.SPADES, 12, Enums.CardType.QUEEN, getOrderString(i)));
+                else cards.add(new Card(Enums.SuitType.SPADES, 13, Enums.CardType.KING, getOrderString(i)));
             } else if (i <= 26) {
-                if (i < 24) cards.add(new Card(Enums.SuitType.DIAMONDS, i, Enums.CardType.BASE, getPointString(i)));
-                else if (i == 24) cards.add(new Card(Enums.SuitType.DIAMONDS , i, Enums.CardType.JACK, getPointString(i)));
-                else if (i == 25) cards.add(new Card(Enums.SuitType.DIAMONDS, i, Enums.CardType.QUEEN, getPointString(i)));
-                else cards.add(new Card(Enums.SuitType.DIAMONDS, i, Enums.CardType.KING, getPointString(i)));
+                if (i < 24) cards.add(new Card(Enums.SuitType.DIAMONDS, i % 13, Enums.CardType.BASE, getOrderString(i)));
+                else if (i == 24) cards.add(new Card(Enums.SuitType.DIAMONDS, 11, Enums.CardType.JACK, getOrderString(i)));
+                else if (i == 25) cards.add(new Card(Enums.SuitType.DIAMONDS, 12, Enums.CardType.QUEEN, getOrderString(i)));
+                else cards.add(new Card(Enums.SuitType.DIAMONDS, 13, Enums.CardType.KING, getOrderString(i)));
             } else if (i <= 39) {
-                if (i < 37) cards.add(new Card(Enums.SuitType.HEARTS, i, Enums.CardType.BASE, getPointString(i)));
-                else if (i == 37) cards.add(new Card(Enums.SuitType.HEARTS, i, Enums.CardType.JACK, getPointString(i)));
-                else if (i == 38) cards.add(new Card(Enums.SuitType.HEARTS, i, Enums.CardType.QUEEN, getPointString(i)));
-                else cards.add(new Card(Enums.SuitType.HEARTS, i, Enums.CardType.KING, getPointString(i)));
+                if (i < 37) cards.add(new Card(Enums.SuitType.HEARTS, i % 13, Enums.CardType.BASE, getOrderString(i)));
+                else if (i == 37) cards.add(new Card(Enums.SuitType.HEARTS, 11, Enums.CardType.JACK, getOrderString(i)));
+                else if (i == 38) cards.add(new Card(Enums.SuitType.HEARTS, 12, Enums.CardType.QUEEN, getOrderString(i)));
+                else cards.add(new Card(Enums.SuitType.HEARTS, 13, Enums.CardType.KING, getOrderString(i)));
             } else {
-                if (i < 50) cards.add(new Card(Enums.SuitType.CLUBS, i, Enums.CardType.BASE, getPointString(i)));
-                else if (i == 50) cards.add(new Card(Enums.SuitType.CLUBS, i, Enums.CardType.JACK, getPointString(i)));
-                else if (i == 51) cards.add(new Card(Enums.SuitType.CLUBS, i, Enums.CardType.QUEEN, getPointString(i)));
-                else cards.add(new Card(Enums.SuitType.CLUBS, i, Enums.CardType.KING, getPointString(i)));
+                if (i < 50) cards.add(new Card(Enums.SuitType.CLUBS, i % 13, Enums.CardType.BASE, getOrderString(i)));
+                else if (i == 50) cards.add(new Card(Enums.SuitType.CLUBS, 11, Enums.CardType.JACK, getOrderString(i)));
+                else if (i == 51) cards.add(new Card(Enums.SuitType.CLUBS, 12, Enums.CardType.QUEEN, getOrderString(i)));
+                else cards.add(new Card(Enums.SuitType.CLUBS, 13, Enums.CardType.KING, getOrderString(i)));
             }
         }
 
         return new Deck(cards);
-    }
-
-    private String getPointString(int i) {
-        if(i % 13 == 1) return "A";
-        if(i % 13 == 11) return "J";
-        if(i % 13 == 12) return "Q";
-        if(i % 13 == 0) return "K";
-
-        return String.valueOf(i % 13);
     }
 
     public int getHandSize() {
@@ -101,5 +103,14 @@ public class CardGame extends Game {
     public void setScreen(Screen screen) {
         ((AbstractScreen) screen).init();
         super.setScreen(screen);
+    }
+
+    private String getOrderString(int i) {
+        if (i % 13 == 1) return "A";
+        if (i % 13 == 11) return "J";
+        if (i % 13 == 12) return "Q";
+        if (i % 13 == 0) return "K";
+
+        return String.valueOf(i % 13);
     }
 }
