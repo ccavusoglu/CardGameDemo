@@ -84,15 +84,7 @@ public class SortHelper {
     public List<Card> sortInGroups(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 
-        for (Card card : cards) {
-            Gdx.app.log("Cards G: ", card.getSuitType() + ":" + card.getPoint() + " " + card.getPointString());
-        }
-
         List<Card> sortedCards = getSortByGroup(cards, null, null, null);
-
-        for (Card card : sortedCards) {
-            Gdx.app.log("Ordered G: ", card.getSuitType() + ":" + card.getPoint());
-        }
 
         Gdx.app.log("Total Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");
 
@@ -105,10 +97,6 @@ public class SortHelper {
 
         List<Card> sortedCards = getSortSequential(getBuckets(cards), null, null, null);
 
-        for (Card card : sortedCards) {
-            Gdx.app.log("Ordered: ", card.getSuitType() + ":" + card.getPoint());
-        }
-
         Gdx.app.log("Total Sort in: ", TimeUtils.timeSinceMillis(beginTimeBucket) + " ms");
 
         return sortedCards;
@@ -119,10 +107,6 @@ public class SortHelper {
 
         // sort first for faster execution
         insertionSort(cards);
-
-        for (Card card : cards) {
-            Gdx.app.log("Cards G: ", card.getSuitType() + ":" + card.getPoint() + " " + card.getPointString());
-        }
 
         List<Integer> sequentialSetCosts = new ArrayList<Integer>();
         List<Integer> sequentialSetCount = new ArrayList<Integer>();
@@ -280,10 +264,6 @@ public class SortHelper {
                 if (!sortedCards.contains(card)) sortedCards.add(card);
             }
 
-        }
-
-        for (Card card : sortedCards) {
-            Gdx.app.log("Ordered: ", card.getSuitType() + ":" + card.getPoint());
         }
 
         Gdx.app.log("Smart Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");

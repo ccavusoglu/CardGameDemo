@@ -11,6 +11,7 @@ public class Card {
     private String         pointString;
     private Enums.CardType cardType;
     private int            order;
+    private int id;
 
     public Card(Enums.SuitType suitType, int order, Enums.CardType cardType, String pointString) {
         this.suitType = suitType;
@@ -27,6 +28,10 @@ public class Card {
 
     public Enums.CardType getCardType() {
         return cardType;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getOrder() {
