@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.cardgamedemo.CardGameDemo;
+import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.entity.Hand;
 import com.cardgamedemo.utils.AssetHelper;
 import com.cardgamedemo.utils.Enums;
@@ -15,6 +16,7 @@ import com.cardgamedemo.view.actor.CardActor;
 import com.cardgamedemo.view.actor.DeckActor;
 import com.cardgamedemo.view.widget.DrawButton;
 
+import javax.print.attribute.HashDocAttributeSet;
 import java.util.List;
 
 /**
@@ -27,6 +29,7 @@ public class MainController {
     private Stage         stage;
     private AssetHelper   assetHelper;
     private List<Vector3> layoutPositions;
+    private Hand hand;
 
     public MainController(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
         this.handLayout = handLayout;
@@ -35,25 +38,27 @@ public class MainController {
     }
 
     public void drawPlayerCards(Enums.ButtonType buttonType) {
-        Hand hand = null;
-
         switch (buttonType) {
             case DECK:
                 hand = new Hand(cardGameDemo.getGame().draw());
                 break;
             case DRAW_ORDER:
-                hand = sortHelper.sortSequential(cardGameDemo.getGame().draw());
+                if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
+                sortHelper.sortSequential(hand.getCards());
                 break;
             case DRAW_GROUP:
-                hand = sortHelper.sortInGroups(cardGameDemo.getGame().draw());
+                if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
+                sortHelper.sortInGroups(hand.getCards());
                 break;
             case DRAW_SMART:
-                hand = sortHelper.sortSmart(cardGameDemo.getGame().draw());
+                if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
+                sortHelper.sortSmart(hand.getCards());
                 break;
         }
 
-        for (int i = 0; i < cardGameDemo.getGame().getHandSize(); i++) {
-            CardActor cardActor = new CardActor(this, layoutPositions.get(i), handLayout.getCardWidth(), hand.getCards().get(i), assetHelper);
+        int i = 0;
+        for (Card card : hand.getCards()) {
+            CardActor cardActor = new CardActor(this, layoutPositions.get(i++), handLayout.getCardWidth(), card, assetHelper);
 
             stage.addActor(cardActor);
         }

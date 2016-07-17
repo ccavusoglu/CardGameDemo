@@ -35,28 +35,28 @@ public class CardGame extends Game {
     }
 
     public List<Card> draw() {
-//        Collections.shuffle(deck.getCards());
+        Collections.shuffle(deck.getCards());
         //        Collections.binarySearch()
 
-//        List<Card> cards = deck.getCards().subList(0, HAND_SIZE);
+        List<Card> cards = deck.getCards().subList(0, HAND_SIZE);
 
 //
 //        return cards;
 //
 //         TEST
-                List<Card> cards = new ArrayList<Card>();
-
-                cards.add(deck.getCards().get(1));
-                cards.add(deck.getCards().get(28));
-                cards.add(deck.getCards().get(2));
-                cards.add(deck.getCards().get(3));
-                cards.add(deck.getCards().get(16));
-                cards.add(deck.getCards().get(30));
-                cards.add(deck.getCards().get(7));
-                cards.add(deck.getCards().get(47));
-                cards.add(deck.getCards().get(34));
-                cards.add(deck.getCards().get(10));
-                cards.add(deck.getCards().get(37));
+//                List<Card> cards = new ArrayList<Card>();
+//
+//                cards.add(deck.getCards().get(9));
+//                cards.add(deck.getCards().get(14));
+//                cards.add(deck.getCards().get(17));
+//                cards.add(deck.getCards().get(34));
+//                cards.add(deck.getCards().get(45));
+//                cards.add(deck.getCards().get(44));
+//                cards.add(deck.getCards().get(5));
+//                cards.add(deck.getCards().get(12));
+//                cards.add(deck.getCards().get(10));
+//                cards.add(deck.getCards().get(24));
+//                cards.add(deck.getCards().get(15));
 
                 for (Card card : cards) {
                     Gdx.app.log("Draw: ", card.getSuitType() + ":" + card.getOrder() + ":" + card.getPointString() + ":" + card.getPoint());

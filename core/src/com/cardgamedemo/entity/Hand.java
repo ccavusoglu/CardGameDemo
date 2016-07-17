@@ -6,14 +6,13 @@ import java.util.List;
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
 public class Hand {
-    private List<Card> cardsOrdered;
+    private List<Card> cards;
 
-    public Hand(List<Card> cardsOrdered) {
-        this.cardsOrdered = cardsOrdered;
+    public Hand(List<Card> cards) {
+        this.cards = cards;
     }
 
     public List<Card> getCards() {
-        return cardsOrdered;
+        return cards;
     }
-
 }

@@ -2,6 +2,7 @@ package com.cardgamedemo.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
+import com.cardgamedemo.CardGameDemo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class HandLayout implements IHandLayout {
 
         float segmentAngle = arcAngle / 10; // 12 segment for 11 cards
 
-        float sidePadding = (Gdx.graphics.getWidth() - chordLength) / 2;
+        float sidePadding = (CardGameDemo.WORLD_WIDTH - chordLength) / 2;
         float bottomPadding = sidePadding / 5;
         float angle = 25; // TODO: calc angle
 

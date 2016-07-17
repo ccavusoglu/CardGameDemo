@@ -81,7 +81,7 @@ public class SortHelper {
         return temp;
     }
 
-    public Hand sortInGroups(List<Card> cards) {
+    public List<Card> sortInGroups(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 
         for (Card card : cards) {
@@ -96,10 +96,10 @@ public class SortHelper {
 
         Gdx.app.log("Total Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");
 
-        return new Hand(sortedCards);
+        return sortedCards;
     }
 
-    public Hand sortSequential(List<Card> cards) {
+    public List<Card> sortSequential(List<Card> cards) {
         // bucket sort first
         long beginTimeBucket = TimeUtils.millis();
 
@@ -111,10 +111,10 @@ public class SortHelper {
 
         Gdx.app.log("Total Sort in: ", TimeUtils.timeSinceMillis(beginTimeBucket) + " ms");
 
-        return new Hand(sortedCards);
+        return sortedCards;
     }
 
-    public Hand sortSmart(List<Card> cards) {
+    public List<Card> sortSmart(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 
         // sort first for faster execution
@@ -288,7 +288,7 @@ public class SortHelper {
 
         Gdx.app.log("Smart Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");
 
-        return new Hand(sortedCards);
+        return sortedCards;
     }
 
     private HashMap<Integer, List<Card>> getBuckets(List<Card> cards) {
