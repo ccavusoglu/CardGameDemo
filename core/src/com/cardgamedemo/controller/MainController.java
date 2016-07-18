@@ -52,6 +52,7 @@ public class MainController {
     private DeckActor            deckActor;
     private boolean arranged        = false;
     private boolean arrangingLayout = false;
+    private boolean actionFlag      = false;
 
     public MainController(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
         this.handLayout = handLayout;
@@ -68,6 +69,7 @@ public class MainController {
     }
 
     public void drag(CardActor actor, float x, float y) {
+        if (!actionFlag) return;
         float actorX = actor.getX();
 
         Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
@@ -114,9 +116,10 @@ public class MainController {
             cardActors.clear();
             arrangingLayout = false;
             deckActor.setVisible(false);
+            actionFlag = false;
             createCardActors();
         } else {
-            if (arrangingLayout || !deckActor.isVisible()) return;
+            if (arrangingLayout || !actionFlag) return;
             arrangingLayout = true;
 
             if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
@@ -141,7 +144,7 @@ public class MainController {
     }
 
     public void focusOn(CardActor cardActor) {
-        if (arrangingLayout || !deckActor.isVisible()) return;
+        if (arrangingLayout || !actionFlag) return;
         if (focussedCard != null) focusOff(focussedCard);
 
         handGroup.swapActor(cardActor.getIndex(), cardActor.getIndex() + 1);
@@ -157,7 +160,10 @@ public class MainController {
 
     // after last cards action, deck is available
     public void handDrawn(int index) {
-        if (index > 9) deckActor.setVisible(true);
+        if (index > 9) {
+            deckActor.setVisible(true);
+            actionFlag = true;
+        }
     }
 
     public Stage prepareGameScreen(AssetHelper assetHelper) {
