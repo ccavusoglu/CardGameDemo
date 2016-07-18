@@ -1,7 +1,6 @@
 package com.cardgamedemo.infrastructure.di;
 
 import com.badlogic.gdx.assets.AssetManager;
-import com.cardgamedemo.CardGame;
 import com.cardgamedemo.CardGameDemo;
 import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.utils.SortHelper;

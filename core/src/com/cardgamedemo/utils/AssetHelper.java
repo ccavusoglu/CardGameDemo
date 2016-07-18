@@ -13,6 +13,11 @@ import java.util.HashMap;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+
+/**
+ * Loads assets using LibGDX AssetManager.
+ * Lazy create objects for corresponding assets.
+ */
 @Singleton
 public class AssetHelper {
     private final HashMap<String, TextureRegion> cardHashMap;
@@ -63,16 +68,16 @@ public class AssetHelper {
         return cardBack;
     }
 
-    public BitmapFont getFontBlack50() {
-        if (black50 == null) black50 = assetManager.get("images/50pt_black.fnt", BitmapFont.class);
-
-        return black50;
-    }
-
     public BitmapFont getFontBlack26() {
         if (black26 == null) black26 = assetManager.get("images/26pt_black.fnt", BitmapFont.class);
 
         return black26;
+    }
+
+    public BitmapFont getFontBlack50() {
+        if (black50 == null) black50 = assetManager.get("images/50pt_black.fnt", BitmapFont.class);
+
+        return black50;
     }
 
     public BitmapFont getFontWhite60() {

@@ -5,6 +5,10 @@ import java.util.List;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+
+/**
+ * Deck entity created by CardGame.
+ */
 public class Deck {
     private List<Card> cards;
 

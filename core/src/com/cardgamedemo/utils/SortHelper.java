@@ -10,6 +10,10 @@ import java.util.*;
 /**
  * Created by Çağatay Çavuşoğlu on 15.07.2016.
  */
+
+/**
+ * Perform sorting operations.
+ */
 public class SortHelper {
     private static final int MIN_GROUP_SIZE = 3;
 

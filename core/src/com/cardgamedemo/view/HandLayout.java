@@ -1,6 +1,5 @@
 package com.cardgamedemo.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.cardgamedemo.CardGameDemo;
 
@@ -9,6 +8,10 @@ import java.util.List;
 
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
+ */
+
+/**
+ * Layout impl. Mathematically generates positions for cards.
  */
 public class HandLayout implements IHandLayout {
     private List<Vector3> layoutPositions; // z = Card's tilt angle
@@ -36,7 +39,7 @@ public class HandLayout implements IHandLayout {
 
     private List<Vector3> generatePositions() {
         float arcAngle = 60; // circle arc angle; 60
-        float radius = 800; // TODO: should be set dynamically according to screen witdh
+        float radius = 800; // TODO: should or shouldn't be constant?
 
         float chordLength = radius; // 60-60-60 triangle
         float arcHeight = (float) (radius * (1 - Math.cos(Math.toRadians(arcAngle) / 2)));
@@ -48,7 +51,7 @@ public class HandLayout implements IHandLayout {
 
         float sidePadding = (CardGameDemo.WORLD_WIDTH - chordLength) / 2;
         float bottomPadding = sidePadding / 5;
-        float angle = 25; // TODO: calc angle
+        float angle = 25; // angle should be calculated according to radius etc.
 
         float originX = sidePadding + chordLength / 2;
 
@@ -61,8 +64,9 @@ public class HandLayout implements IHandLayout {
             float x = (float) (originX + radius * Math.cos(Math.toRadians(arcAngle * 2) - k * Math.toRadians(segmentAngle))) - cardWidthApprox;
             float y = (float) (bottomPadding + radius * Math.sin(Math.toRadians(arcAngle * 2) - k * Math.toRadians(segmentAngle))) - radius + arcHeight;
 
-//            float x1 = (float) (radius + radius * Math.cos(Math.toRadians(arcAngle * 2) - (k + 2) * Math.toRadians(segmentAngle)));
-//            float y1 = (float) (bottomPadding + radius * Math.sin(Math.toRadians(arcAngle * 2) - (k + 2) * Math.toRadians(segmentAngle))) - radius + arcHeight;
+            //            float x1 = (float) (radius + radius * Math.cos(Math.toRadians(arcAngle * 2) - (k + 2) * Math.toRadians(segmentAngle)));
+            //            float y1 = (float) (bottomPadding + radius * Math.sin(Math.toRadians(arcAngle * 2) - (k + 2) * Math.toRadians(segmentAngle))) - radius +
+            // arcHeight;
 
             //            float angle = (float) Math.toDegrees(Math.atan2(y1 - y, x1 - x));
 

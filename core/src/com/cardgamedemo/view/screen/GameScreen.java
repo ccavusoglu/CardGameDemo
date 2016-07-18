@@ -2,8 +2,6 @@ package com.cardgamedemo.view.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Vector2;
 import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.utils.AssetHelper;
 
@@ -34,7 +32,7 @@ public class GameScreen extends AbstractScreen {
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
-//        inputMultiplexer.addProcessor(new GestureDetector(this));
+        //        inputMultiplexer.addProcessor(new GestureDetector(this));
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 

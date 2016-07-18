@@ -61,11 +61,11 @@ public class CardActor extends Group {
         addListener(new ActorGestureListener() {
             @Override
             public void tap(InputEvent event, float x, float y, int count, int button) {
-                if (count > 1) doubleTap();
+                singleTap();
             }
         });
 
-        debugAll();
+//        debugAll();
     }
 
     @Override
@@ -83,12 +83,8 @@ public class CardActor extends Group {
         super.draw(batch, parentAlpha);
     }
 
-    public void doubleTap() {
-        Gdx.app.log(getClass().getSimpleName(), "clicked: " + card.getSuitType() + ":" + card.getOrder());
-
-        // focus on card
-        if (!focussed) mainController.focusOn(this);
-        else mainController.focusOff(this);
+    public String toString() {
+        return "[index: " + index + "] " + positionVector;
     }
 
     public double getAngle() {
@@ -135,20 +131,33 @@ public class CardActor extends Group {
     }
 
     public void reArrangeLayout(final Vector3 pos, int index, float focusHeight) {
-        if (hasActions()) return;
+        if (hasActions()) {
+            clearActions();
+        }
 
         this.index = index;
         this.positionVector = pos;
 
         // change tiltAngle etc.
-        addAction(Actions.sequence(Actions.moveBy(0, focusHeight, 0.3f, Interpolation.pow2Out), Actions.delay(0.5f),
-                                   Actions.parallel(Actions.moveTo(pos.x, pos.y, 2.1f, Interpolation.exp5Out), Actions.rotateTo(pos.z, 2.0f, Interpolation.exp5Out),
-                                                    Actions.run(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            mainController.reArrangeGroup();
-                                                        }
-                                                    }))));
+        addAction(Actions.sequence(Actions.moveBy(0, focusHeight, 0.3f, Interpolation.pow2Out), Actions.delay(0.5f), Actions.parallel(Actions.run(new Runnable() {
+            @Override
+            public void run() {
+                mainController.reArrangeGroup();
+            }
+        }), Actions.moveTo(pos.x, pos.y, 2.1f, Interpolation.exp5Out), Actions.rotateTo(pos.z, 2.0f, Interpolation.exp5Out)), Actions.run(new Runnable() {
+            @Override
+            public void run() {
+                mainController.setLayoutArranged();
+            }
+        })));
+    }
+
+    public void singleTap() {
+        Gdx.app.log(getClass().getSimpleName(), "clicked: " + card.getSuitType() + ":" + card.getOrder());
+
+        // focus on card
+        if (!focussed) mainController.focusOn(this);
+        else mainController.focusOff(this);
     }
 
     public void swapPosition(CardActor target, Vector3 targetPos) {
@@ -179,7 +188,7 @@ public class CardActor extends Group {
 
         @Override
         public void dragStart(InputEvent event, float x, float y, int pointer) {
-            Gdx.app.log(TAG, "Gesture dragStart: " + x + " " + y);
+            //            Gdx.app.log(TAG, "Gesture dragStart: " + x + " " + y);
             mainController.dragStart(actor, x, y);
             super.dragStart(event, x, y, pointer);
         }
@@ -202,9 +211,5 @@ public class CardActor extends Group {
             //            Gdx.app.log(TAG, "Gesture cancel");
             super.cancel();
         }
-    }
-
-    public String toString() {
-        return "[index: " + index + "] " + positionVector;
     }
 }

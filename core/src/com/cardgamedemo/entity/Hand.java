@@ -5,6 +5,10 @@ import java.util.List;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+
+/**
+ * Entity responsible for player's cards.
+ */
 public class Hand {
     private List<Card> cards;
 

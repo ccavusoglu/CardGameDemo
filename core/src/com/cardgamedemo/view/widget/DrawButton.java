@@ -16,6 +16,10 @@ import com.cardgamedemo.utils.Enums;
 /**
  * Created by Çağatay Çavuşoğlu on 16.07.2016.
  */
+
+/**
+ * Represents buttons to perform sorting.
+ */
 public class DrawButton extends Actor {
     private final TextureRegion    buttonBack;
     private final BitmapFont       buttonFont;
@@ -28,7 +32,7 @@ public class DrawButton extends Actor {
         this.buttonFont = buttonFont;
         this.buttonType = buttonType;
 
-        // TODO: move
+        // TODO: Hardcoded strings.
         if (buttonType == Enums.ButtonType.DRAW_ORDER) text = "1-2-3 \nSORT";
         else if (buttonType == Enums.ButtonType.DRAW_GROUP) text = "GROUP \nSORT";
         else if (buttonType == Enums.ButtonType.DRAW_SMART) text = "SMART \nSORT";

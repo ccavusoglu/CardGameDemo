@@ -31,7 +31,7 @@ public class LoadingBar extends Group {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        batch.draw(loadingBack,getX(), getY());
+        batch.draw(loadingBack, getX(), getY());
         batch.draw(loadingBar, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
     }
 }

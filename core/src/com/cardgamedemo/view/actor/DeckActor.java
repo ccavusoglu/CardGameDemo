@@ -14,9 +14,13 @@ import com.cardgamedemo.utils.Enums;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+
+/**
+ * View for deck object. For now, only a button which generates deck.
+ */
 public class DeckActor extends Actor {
     private final MainController mainController;
-    private TextureRegion deck;
+    private       TextureRegion  deck;
 
     public DeckActor(final MainController mainController, float x, float y, AssetHelper assetHelper) {
         deck = assetHelper.getCardBack();
@@ -35,7 +39,7 @@ public class DeckActor extends Actor {
             }
         });
 
-        debug();
+//        debug();
     }
 
     @Override
