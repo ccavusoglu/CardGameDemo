@@ -12,6 +12,10 @@ import javax.inject.Inject;
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
  */
+
+/**
+ * Main game screen. Pretty much do nothing but inform controller for updates.
+ */
 public class GameScreen extends AbstractScreen {
     private static final String TAG = "GameScreen";
 
@@ -30,7 +34,7 @@ public class GameScreen extends AbstractScreen {
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
-        inputMultiplexer.addProcessor(new GestureDetector(this));
+//        inputMultiplexer.addProcessor(new GestureDetector(this));
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 

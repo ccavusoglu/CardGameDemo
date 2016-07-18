@@ -36,28 +36,26 @@ public class CardGame extends Game {
 
     public List<Card> draw() {
         Collections.shuffle(deck.getCards());
-        //        Collections.binarySearch()
-
         List<Card> cards = deck.getCards().subList(0, HAND_SIZE);
 
         //
         //        return cards;
         //
-        //         TEST
-        //                List<Card> cards = new ArrayList<Card>();
-        //
-        //                cards.add(deck.getCards().get(9));
-        //                cards.add(deck.getCards().get(14));
-        //                cards.add(deck.getCards().get(17));
-        //                cards.add(deck.getCards().get(34));
-        //                cards.add(deck.getCards().get(45));
-        //                cards.add(deck.getCards().get(44));
-        //                cards.add(deck.getCards().get(5));
-        //                cards.add(deck.getCards().get(12));
-        //                cards.add(deck.getCards().get(10));
-        //                cards.add(deck.getCards().get(24));
-        //                cards.add(deck.getCards().get(15));
-
+        // TEST deck
+//                        List<Card> cards = new ArrayList<Card>();
+//
+//                        cards.add(deck.getCards().get(15));
+//                        cards.add(deck.getCards().get(28));
+//                        cards.add(deck.getCards().get(41));
+//                        cards.add(deck.getCards().get(26));
+//                        cards.add(deck.getCards().get(29));
+//                        cards.add(deck.getCards().get(30));
+//                        cards.add(deck.getCards().get(6));
+//                        cards.add(deck.getCards().get(32));
+//                        cards.add(deck.getCards().get(2));
+//                        cards.add(deck.getCards().get(48));
+//                        cards.add(deck.getCards().get(50));
+//
         Gdx.app.log("------", "----------------------------");
         for (Card card : cards) {
             Gdx.app.log("Draw: ", card.getSuitType() + ":" + card.getOrder() + ":" + card.getPointString() + ":" + card.getPoint());

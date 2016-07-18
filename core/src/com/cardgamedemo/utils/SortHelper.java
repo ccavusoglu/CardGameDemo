@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.cardgamedemo.CardGameDemo;
 import com.cardgamedemo.entity.Card;
-import com.cardgamedemo.entity.Hand;
 
 import java.util.*;
 
@@ -398,12 +397,13 @@ public class SortHelper {
                 } else {
                     if (curOrder > 1) {
                         sortedCards.addAll(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-                        groupIndexStart[i] = j;
-                        groupIndexEnd[i] = j + 1;
+
                         //
                         if (sequentialSetCount != null) sequentialSetCount.add(setIndex);
                         if (sequentialSets != null) sequentialSets.put(setIndex++, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
                         if (sequentialSetCosts != null) sequentialSetCosts.add(getTotalPoint(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i])));
+                        groupIndexStart[i] = j;
+                        groupIndexEnd[i] = j + 1;
                     } else {
                         spareCards.addAll(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
                         groupIndexStart[i] = j;

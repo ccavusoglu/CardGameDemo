@@ -1,6 +1,8 @@
 package com.cardgamedemo.controller;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -19,12 +21,14 @@ import com.cardgamedemo.view.actor.CardActor;
 import com.cardgamedemo.view.actor.DeckActor;
 import com.cardgamedemo.view.widget.DrawButton;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
+ */
+
+/**
+ * Only controller, yet. Handles logic, data and updates views (CardActors, DrawButtons, DeckActor, GameScreen).
  */
 public class MainController {
     private static final float FOCUS_HEIGHT = 48;
@@ -35,16 +39,72 @@ public class MainController {
     private AssetHelper           assetHelper;
     private List<Vector3>         layoutPositions;
     private Hand                  hand;
-    private LinkedList<CardActor> cardActors;
+    private ArrayList<CardActor> cardActors;
     private Group                 group;
     private CardActor             focussedCard;
+    private Vector3               lastCardActorPos;
+    private float                 dragOffsetX;
+    private float                 dragOffsetY;
+    private CardActor             dragNextActorToCheck;
 
     public MainController(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
         this.handLayout = handLayout;
         this.cardGameDemo = cardGameDemo;
         this.sortHelper = sortHelper;
-        cardActors = new LinkedList<CardActor>();
+        cardActors = new ArrayList<CardActor>();
         group = new Group();
+    }
+
+    public void clearFocus(CardActor cardActor) {
+        group.swapActor(cardActor.getIndex() + 1, cardActor.getIndex());
+        cardActor.setFocussed(false);
+        focussedCard = null;
+    }
+
+    public void drag(CardActor actor, float x, float y) {
+        float actorX = actor.getX();
+        //        Gdx.app.log("ActorX", actorX + " ");
+
+        Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
+        actor.setPosition(coords.x - dragOffsetX, coords.y - dragOffsetY);
+
+        boolean direction = false;
+        // actor moving left or right
+        if (actorX > coords.x - dragOffsetX) {
+            // no card to check on its left
+            if (actor.getIndex() == 0) return;
+
+            dragNextActorToCheck = cardActors.get(actor.getIndex() - 1);
+            direction = true;
+            //            Gdx.app.log("Drag Main Left:", actor.toString() + " next:" + dragNextActorToCheck.toString());
+        } else {
+            // no card to check on its right
+            if (actor.getIndex() + 1 == cardActors.size()) return;
+
+            dragNextActorToCheck = cardActors.get(actor.getIndex() + 1);
+            direction = false;
+            //            Gdx.app.log("Drag Main R:", actor.toString() + " next:" + dragNextActorToCheck.toString());
+        }
+
+        if (actor.overlaps(dragNextActorToCheck, direction)) {
+            swapActorPositions(actor, dragNextActorToCheck);
+        }
+    }
+
+    public void dragStart(CardActor actor, float x, float y) {
+        lastCardActorPos = actor.getPositionVector();
+        Gdx.app.log("Main", lastCardActorPos.toString());
+
+        Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
+        dragOffsetX = coords.x - actor.getX();
+        dragOffsetY = coords.y - actor.getY();
+        //        if (!actor.getFocussed()) actor.addAction(Actions.moveBy(0, FOCUS_HEIGHT, 0.05f, Interpolation.exp10Out));
+    }
+
+    public void dragStop(CardActor actor, float x, float y) {
+        actor.moveToNewPosition(lastCardActorPos);
+        Gdx.app.log("Main", actor.getPositionVector().toString());
+        //        if (actor.getFocussed()) clearFocus(actor);
     }
 
     public void drawPlayerCards(Enums.ButtonType buttonType) {
@@ -77,7 +137,7 @@ public class MainController {
 
     public void focusOff(CardActor cardActor) {
         group.swapActor(cardActor.getIndex() + 1, cardActor.getIndex());
-        cardActor.addAction(Actions.moveBy(0, -FOCUS_HEIGHT, 0.05f, Interpolation.exp10Out));
+        cardActor.addAction(Actions.moveBy(0, -FOCUS_HEIGHT, 0.05f, Interpolation.pow2Out));
         cardActor.setFocussed(false);
         focussedCard = null;
     }
@@ -86,7 +146,7 @@ public class MainController {
         if (focussedCard != null) focusOff(focussedCard);
 
         group.swapActor(cardActor.getIndex(), cardActor.getIndex() + 1);
-        cardActor.addAction(Actions.moveBy(0, FOCUS_HEIGHT, 0.05f, Interpolation.exp10Out));
+        cardActor.addAction(Actions.moveBy(0, FOCUS_HEIGHT, 0.05f, Interpolation.pow2Out));
         cardActor.setFocussed(true);
         focussedCard = cardActor;
     }
@@ -130,6 +190,19 @@ public class MainController {
         return stage;
     }
 
+    public void reArrangeGroup() {
+        // TODO: 18.07.2016 => :/
+        group.clear();
+        for (int i = 0; i < cardActors.size(); i++) {
+            for (CardActor cardActor : cardActors) {
+                if (cardActor.getIndex() == i) {
+                    group.addActor(cardActor);
+                    break;
+                }
+            }
+        }
+    }
+
     private void arrangeCards() {
         if (focussedCard != null) focusOff(focussedCard);
 
@@ -143,21 +216,10 @@ public class MainController {
             for (Card c : hand.getCards()) {
                 if (c.equals(card)) {
                     posSwap.put(i, cardActor);
-                    cardActor.setNewPosition(layoutPositions.get(i), i, FOCUS_HEIGHT);
+                    cardActor.reArrangeLayout(layoutPositions.get(i), i, FOCUS_HEIGHT);
                     break;
                 }
                 i++;
-            }
-        }
-
-        // TODO: 18.07.2016 => :/
-        group.clear();
-        for (int i = 0; i < cardActors.size(); i++) {
-            for (CardActor cardActor : cardActors) {
-                if (cardActor.getIndex() == i) {
-                    group.addActor(cardActor);
-                    break;
-                }
             }
         }
     }
@@ -173,5 +235,28 @@ public class MainController {
         }
 
         stage.addActor(group);
+    }
+
+    private void swapActorPositions(CardActor dragged, CardActor target) {
+        lastCardActorPos = target.getPositionVector();
+        target.moveToNewPosition(dragged.getPositionVector());
+
+        int index = dragged.getIndex();
+        dragged.swapPosition(target, lastCardActorPos);
+        target.setIndex(index);
+//
+//        if (cardActors.size() < target.getIndex()) cardActors.addLast(target);
+//        else if (target.getIndex() == 0) cardActors.addFirst(target);
+//        else cardActors.add(target.getIndex() - 1, target);
+//
+//        if (cardActors.size() < dragged.getIndex()) cardActors.addLast(dragged);
+//        else if (dragged.getIndex() == 0) cardActors.addFirst(dragged);
+//        else cardActors.add(dragged.getIndex(), dragged);
+
+        group.swapActor(dragged.getIndex(), target.getIndex());
+
+        Collections.swap(cardActors, dragged.getIndex(), target.getIndex());
+
+        Gdx.app.log("MainSwapAct", "Target: " + target.toString() + " Dragged: " + dragged.toString() + " LastPos: " + lastCardActorPos.toString());
     }
 }
