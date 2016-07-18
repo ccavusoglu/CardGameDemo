@@ -65,7 +65,7 @@ public class CardActor extends Group {
             }
         });
 
-//        debugAll();
+        //        debugAll();
     }
 
     @Override
@@ -131,12 +131,13 @@ public class CardActor extends Group {
     }
 
     public void reArrangeLayout(final Vector3 pos, int index, float focusHeight) {
-        if (hasActions()) {
-            clearActions();
-        }
-
         this.index = index;
         this.positionVector = pos;
+
+        if (focussed) {
+            focusHeight = 0;
+            focussed = false;
+        }
 
         // change tiltAngle etc.
         addAction(Actions.sequence(Actions.moveBy(0, focusHeight, 0.3f, Interpolation.pow2Out), Actions.delay(0.5f), Actions.parallel(Actions.run(new Runnable() {

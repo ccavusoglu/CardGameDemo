@@ -62,7 +62,6 @@ public class MainController {
 
     public void clearFocus(CardActor cardActor) {
         handGroup.swapActor(cardActor.getIndex() + 1, cardActor.getIndex());
-        cardActor.setFocussed(false);
         focussedCard = null;
     }
 
@@ -138,10 +137,6 @@ public class MainController {
         if (cardActors.size() == 0) createCardActors();
     }
 
-    public void setLayoutArranged() {
-        arrangingLayout = false;
-    }
-
     public void focusOff(CardActor cardActor) {
         handGroup.swapActor(cardActor.getIndex() + 1, cardActor.getIndex());
         cardActor.addAction(Actions.moveBy(0, -FOCUS_HEIGHT, 0.05f, Interpolation.pow2Out));
@@ -150,6 +145,7 @@ public class MainController {
     }
 
     public void focusOn(CardActor cardActor) {
+        if (arrangingLayout) return;
         if (focussedCard != null) focusOff(focussedCard);
 
         handGroup.swapActor(cardActor.getIndex(), cardActor.getIndex() + 1);
@@ -216,8 +212,12 @@ public class MainController {
         }
     }
 
+    public void setLayoutArranged() {
+        arrangingLayout = false;
+    }
+
     private void arrangeCards() {
-        if (focussedCard != null) focusOff(focussedCard);
+        if (focussedCard != null) clearFocus(focussedCard);
         arranged = false;
 
         // loop thru all card actors IN ORDER and set new positions
