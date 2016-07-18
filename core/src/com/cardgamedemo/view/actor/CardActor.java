@@ -9,8 +9,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.cardgamedemo.CardGameDemo;
 import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.utils.AssetHelper;
@@ -33,7 +35,7 @@ public class CardActor extends Group {
     private       boolean        focussed;
     private       Vector3        positionVector;
 
-    public CardActor(MainController mainController, int index, Vector3 pos, float w, final Card card, AssetHelper assetHelper) {
+    public CardActor(final MainController mainController, final int index, final Vector3 pos, float w, final Card card, AssetHelper assetHelper) {
         tiltAngle = pos.z;
         this.card = card;
         this.mainController = mainController;
@@ -44,7 +46,7 @@ public class CardActor extends Group {
         cardTexture = assetHelper.getCard(card.getSuitType(), card.getCardType());
         cardFont = assetHelper.getFontBlack26();
 
-        setBounds(pos.x, pos.y, w, cardTexture.getRegionHeight() * w / cardTexture.getRegionWidth());
+        setBounds(CardGameDemo.WORLD_WIDTH / 2, CardGameDemo.WORLD_HEIGHT / 2, w, cardTexture.getRegionHeight() * w / cardTexture.getRegionWidth());
         setOrigin(getWidth() / 2, getHeight() / 2);
         rotateBy(tiltAngle);
 
@@ -56,6 +58,21 @@ public class CardActor extends Group {
         };
 
         addActor(cardPointActor);
+
+        // draw animation
+        setTouchable(Touchable.disabled);
+        setScale(getScaleX() / 2, getScaleY() / 2);
+        addAction(Actions.sequence(Actions.delay(index * 0.1f), Actions.fadeIn(0.3f, Interpolation.pow3Out),
+                                   Actions.parallel(Actions.moveTo(pos.x, pos.y, 1f, Interpolation.pow3Out), Actions.scaleTo(1, 1, 1f, Interpolation.pow3Out),
+                                                    Actions.rotateBy(360, 0.9f, Interpolation.pow3Out)), Actions.run(new Runnable() {
+                    @Override
+                    public void run() {
+                        setTouchable(Touchable.enabled);
+                        clearActions();
+                        mainController.handDrawn(index);
+                        setRotation(pos.z);
+                    }
+                })));
 
         addListener(new DragListener(this));
         addListener(new ActorGestureListener() {
@@ -130,27 +147,19 @@ public class CardActor extends Group {
         //                .getHeight() && getY() + getHeight() > actor.getY();
     }
 
-    public void reArrangeLayout(final Vector3 pos, int index, float focusHeight) {
+    public void reArrangeLayout(final Vector3 pos, int index, float focusHeight, Runnable runAfter) {
         this.index = index;
         this.positionVector = pos;
 
-        if (focussed) {
-            focusHeight = 0;
-            focussed = false;
-        }
-
         // change tiltAngle etc.
-        addAction(Actions.sequence(Actions.moveBy(0, focusHeight, 0.3f, Interpolation.pow2Out), Actions.delay(0.5f), Actions.parallel(Actions.run(new Runnable() {
-            @Override
-            public void run() {
-                mainController.reArrangeGroup();
-            }
-        }), Actions.moveTo(pos.x, pos.y, 2.1f, Interpolation.exp5Out), Actions.rotateTo(pos.z, 2.0f, Interpolation.exp5Out)), Actions.run(new Runnable() {
-            @Override
-            public void run() {
-                mainController.setLayoutArranged();
-            }
-        })));
+        addAction(Actions.sequence(Actions.moveBy(0, focusHeight, 0.2f, Interpolation.pow3Out), Actions.delay(0.3f), Actions.parallel(Actions.run(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           mainController.reArrangeGroup();
+                                       }
+                                   }), Actions.moveTo(pos.x, pos.y, 1.6f, Interpolation.sineOut), Actions.rotateTo(pos.z, 1.5f, Interpolation.pow3Out)),
+                                   Actions.scaleBy(0.2f, 0.2f, 0.1f, Interpolation.pow3Out), Actions.scaleTo(1, 1, 0.05f, Interpolation.pow3Out),
+                                   Actions.run(runAfter)));
     }
 
     public void singleTap() {
