@@ -68,9 +68,8 @@ public class CardActor extends Group {
                     @Override
                     public void run() {
                         setTouchable(Touchable.enabled);
-                        clearActions();
-                        mainController.handDrawn(index);
                         setRotation(pos.z);
+                        mainController.handDrawn(index);
                     }
                 })));
 
@@ -163,7 +162,7 @@ public class CardActor extends Group {
     }
 
     public void singleTap() {
-        Gdx.app.log(getClass().getSimpleName(), "clicked: " + card.getSuitType() + ":" + card.getOrder());
+        Gdx.app.log(TAG, "clicked: " + card.getSuitType() + ":" + card.getOrder());
 
         // focus on card
         if (!focussed) mainController.focusOn(this);

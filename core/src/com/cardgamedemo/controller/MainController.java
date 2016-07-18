@@ -69,7 +69,7 @@ public class MainController {
     }
 
     public void drag(CardActor actor, float x, float y) {
-        if (!actionFlag) return;
+        if (!actionFlag || arrangingLayout) return;
         float actorX = actor.getX();
 
         Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
@@ -219,8 +219,8 @@ public class MainController {
         }
     }
 
-    public void setLayoutArranged() {
-        arrangingLayout = false;
+    public void setLayoutArranged(int index) {
+        if (index > 9) arrangingLayout = false;
     }
 
     private void arrangeCards() {
@@ -239,10 +239,11 @@ public class MainController {
             int i = 0;
             for (Card c : hand.getCards()) {
                 if (c.equals(card)) {
+                    final int index = i;
                     cardActor.reArrangeLayout(layoutPositions.get(i), i, height, new Runnable() {
                         @Override
                         public void run() {
-                            setLayoutArranged();
+                            setLayoutArranged(index);
                         }
                     });
                     break;
