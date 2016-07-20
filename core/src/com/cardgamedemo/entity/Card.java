@@ -13,6 +13,10 @@ public class Card {
     private int            order;
     private int            id;
 
+    // only for tests
+    public Card() {
+    }
+
     public Card(Enums.SuitType suitType, int order, Enums.CardType cardType, String pointString) {
         this.suitType = suitType;
         this.order = order;
@@ -48,5 +52,15 @@ public class Card {
 
     public Enums.SuitType getSuitType() {
         return suitType;
+    }
+
+    public void setSuitAndOrder(Enums.SuitType suitType,  int order) {
+        this.suitType = suitType;
+        this.order = order;
+        this.point = order > 10 ? 10 : order;
+    }
+
+    public String toString() {
+        return "[" + suitType.toString() + ":" + order + "]";
     }
 }

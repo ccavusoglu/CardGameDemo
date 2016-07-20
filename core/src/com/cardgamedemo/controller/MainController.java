@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.cardgamedemo.CardGame;
 import com.cardgamedemo.CardGameDemo;
 import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.entity.Hand;
@@ -33,7 +34,7 @@ import java.util.List;
  * Only controller, yet. Handles logic, data and updates views (CardActors, DrawButtons, DeckActor, GameScreen).
  */
 public class MainController {
-    private static final float  FOCUS_HEIGHT = 48;
+    private static final float  FOCUS_HEIGHT = CardGame.FOCUS_HEIGTH;
     private static final String TAG          = "MainController";
     private IHandLayout          handLayout;
     private CardGameDemo         cardGameDemo;
@@ -254,8 +255,6 @@ public class MainController {
     }
 
     private void createCardActors() {
-        handGroup = new HandGroup();
-
         int i = 0;
         for (Card card : hand.getCards()) {
             CardActor cardActor = new CardActor(this, i, layoutPositions.get(i++), handLayout.getCardWidth(), card, assetHelper);

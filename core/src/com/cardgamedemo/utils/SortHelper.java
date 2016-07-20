@@ -2,7 +2,7 @@ package com.cardgamedemo.utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.cardgamedemo.CardGameDemo;
+import com.cardgamedemo.CardGame;
 import com.cardgamedemo.entity.Card;
 
 import java.util.*;
@@ -98,13 +98,14 @@ public class SortHelper {
         // bucket sort first
         long beginTimeBucket = TimeUtils.millis();
 
-        List<Card> sortedCards = getSortSequential(getBuckets(cards), null, null, null);
+        List<Card> sortedCards = getSortSequential(getSuitBuckets(cards), null, null, null);
 
         Gdx.app.log("Total Sort in: ", TimeUtils.timeSinceMillis(beginTimeBucket) + " ms");
 
         return sortedCards;
     }
 
+    // maximum set cover to minimize spare cards total cost
     public List<Card> sortSmart(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 
@@ -121,10 +122,10 @@ public class SortHelper {
         // first sort by groups
         List<Card> groupSorted = getSortByGroup(cards, groupSets, groupSetCount, groupSetCosts);
         // sort by sequences
-        List<Card> orderSorted = getSortSequential(getBuckets(cards), sequentialSets, sequentialSetCount, sequentialSetCosts);
+        List<Card> orderSorted = getSortSequential(getSuitBuckets(cards), sequentialSets, sequentialSetCount, sequentialSetCosts);
 
         List<Card> sortedCards = new ArrayList<Card>();
-        HashMap<Integer, List<Card>> setBuckets = new HashMap<Integer, List<Card>>(CardGameDemo.CARD_TYPE_COUNT);
+        HashMap<Integer, List<Card>> setBuckets = new HashMap<Integer, List<Card>>(CardGame.CARD_TYPE_COUNT);
         int key = 0;
         // keep track of added sets to prevent duplication
         Map<Integer, Boolean> addedGroupSets = new HashMap<Integer, Boolean>();
@@ -161,54 +162,69 @@ public class SortHelper {
                         }
                     } else {
                         boolean conflict = false;
-                        // compare sets
-                        for (Card card : groupSets.get(j)) {
+                        // compare sets. starts with the highest cost
+                        List<Card> firstSet;
+                        List<Card> secondSet;
+                        List<Integer> firstSetCost;
+                        List<Integer> secondSetCost;
+                        if (groupSetCosts.get(j) >= sequentialSetCosts.get(k)) {
+                            firstSet = groupSets.get(j);
+                            secondSet = sequentialSets.get(k);
+                            firstSetCost = groupSetCosts;
+                            secondSetCost = sequentialSetCosts;
+                        } else {
+                            firstSet = sequentialSets.get(k);
+                            secondSet = groupSets.get(j);
+                            firstSetCost = sequentialSetCosts;
+                            secondSetCost = groupSetCosts;
+                        }
+                        for (Card card : firstSet) {
                             int sortIndex = 0;
-                            for (Card card1 : sequentialSets.get(k)) {
+                            for (Card card1 : secondSet) {
                                 sortIndex++;
                                 if (card.equals(card1)) {
                                     // conflict! should pick one or exchange a card
                                     conflict = true;
                                     // there may be only 1 conflict. break after this.
                                     // check if without this card first set can exist
-                                    if (groupSets.get(j).size() == 4) {
+                                    if (firstSet.size() > 3) {
                                         // remove this card from this set
-                                        groupSets.get(j).remove(card);
-                                        groupSetCosts.set(j, groupSetCosts.get(j) - card.getPoint());
+                                        firstSet.remove(card);
+                                        firstSetCost.set(j, firstSetCost.get(j) - card.getPoint());
                                         // add both set to last list
                                         // they have the highest total cost
                                         if (!addedGroupSets.get(j)) {
-                                            setBuckets.put(key++, groupSets.get(j));
+                                            setBuckets.put(key++, firstSet);
                                             addedGroupSets.put(j, true);
                                         }
                                         if (!addedSequenceSets.get(k)) {
-                                            setBuckets.put(key++, sequentialSets.get(k));
+                                            setBuckets.put(key++, secondSet);
                                             addedSequenceSets.put(k, true);
                                         }
                                         break;
                                     } else {
-                                        if (sequentialSets.get(k).size() == 3) {
+                                        if (secondSet.size() == 3) {
                                             // 1 set should be picked
-                                            if (groupSetCosts.get(j) >= sequentialSetCosts.get(k) && !addedGroupSets.get(j)) {
-                                                setBuckets.put(key++, groupSets.get(j));
+                                            if (firstSetCost.get(j) >= secondSetCost.get(k) && !addedGroupSets.get(j)) {
+                                                setBuckets.put(key++, firstSet);
                                                 addedGroupSets.put(j, true);
                                             } else if (!addedSequenceSets.get(k)) {
-                                                setBuckets.put(key++, sequentialSets.get(k));
+                                                setBuckets.put(key++, secondSet);
                                                 addedSequenceSets.put(k, true);
                                             }
                                         } else {
                                             // check if sequential set can exist without this card
                                             // if its first or last we can remove and pick both sets
-                                            if (sortIndex == 1 || sortIndex == sequentialSets.get(k).size()) {
-                                                sequentialSets.get(k).remove(sortIndex - 1);
+                                            if (sortIndex == 1 || sortIndex == secondSet.size()) {
+                                                secondSet.remove(sortIndex - 1);
                                                 // re calc. cost.
-                                                sequentialSetCosts.set(k, sequentialSetCosts.get(k) - card1.getPoint());
+                                                secondSetCost.set(k, secondSetCost.get(k) - card1.getPoint());
                                                 if (!addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, groupSets.get(j));
+                                                    setBuckets.put(key++, firstSet);
                                                     addedGroupSets.put(j, true);
                                                 }
                                                 if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, sequentialSets.get(k));
+                                                    setBuckets.put(key++, secondSet);
                                                     addedSequenceSets.put(k, true);
                                                 }
                                                 break;
@@ -216,25 +232,25 @@ public class SortHelper {
                                             // if its at 4th or after add cards up to sort index. e.g: 1 2 3 '4' 5 add 1 2 3
                                             else if (sortIndex > 3) {
                                                 if (!addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, groupSets.get(j));
+                                                    setBuckets.put(key++, firstSet);
                                                     addedGroupSets.put(j, true);
                                                 }
                                                 if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, sequentialSets.get(k).subList(0, sortIndex));
+                                                    setBuckets.put(key++, secondSet.subList(0, sortIndex));
                                                     addedSequenceSets.put(k, true);
                                                     // re calc. cost.
                                                     sortIndex--;
-                                                    int diff = sequentialSets.get(k).size() - sortIndex;
+                                                    int diff = secondSet.size() - sortIndex;
                                                     while (diff-- > 0)
-                                                        sequentialSetCosts.set(k, sequentialSetCosts.get(k) - sequentialSets.get(k).get(sortIndex++).getPoint());
+                                                        secondSetCost.set(k, secondSetCost.get(k) - secondSet.get(sortIndex++).getPoint());
                                                 }
                                             } else {
                                                 // 1 set should be picked
-                                                if (groupSetCosts.get(j) >= sequentialSetCosts.get(k) && !addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, groupSets.get(j));
+                                                if (firstSetCost.get(j) >= secondSetCost.get(k) && !addedGroupSets.get(j)) {
+                                                    setBuckets.put(key++, firstSet);
                                                     addedGroupSets.put(j, true);
                                                 } else if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, sequentialSets.get(k));
+                                                    setBuckets.put(key++, secondSet);
                                                     addedSequenceSets.put(k, true);
                                                 }
                                                 break;
@@ -272,30 +288,6 @@ public class SortHelper {
         Gdx.app.log("Smart Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");
 
         return sortedCards;
-    }
-
-    private HashMap<Integer, List<Card>> getBuckets(List<Card> cards) {
-        // create buckets for 4 types of suites
-        HashMap<Integer, List<Card>> buckets = new HashMap<Integer, List<Card>>(CardGameDemo.CARD_TYPE_COUNT);
-        buckets.put(0, new ArrayList<Card>());
-        buckets.put(1, new ArrayList<Card>());
-        buckets.put(2, new ArrayList<Card>());
-        buckets.put(3, new ArrayList<Card>());
-
-        for (Card card : cards) {
-            if (card.getSuitType().equals(Enums.SuitType.SPADES)) buckets.get(0).add(card);
-            else if (card.getSuitType().equals(Enums.SuitType.DIAMONDS)) buckets.get(1).add(card);
-            else if (card.getSuitType().equals(Enums.SuitType.HEARTS)) buckets.get(2).add(card);
-            else buckets.get(3).add(card);
-        }
-
-        // sort each bucket
-        insertionSort(buckets.get(0));
-        insertionSort(buckets.get(1));
-        insertionSort(buckets.get(2));
-        insertionSort(buckets.get(3));
-
-        return buckets;
     }
 
     private List<Card> getSortByGroup(List<Card> cards, HashMap<Integer, List<Card>> groupSets, List<Integer> groupSetCount, List<Integer> groupSetCosts) {
@@ -363,7 +355,7 @@ public class SortHelper {
         // begin index to get spare cards for each bucket
         int[] groupIndexStart = {0, 0, 0, 0};
         int[] groupIndexEnd = {1, 1, 1, 1};
-        int index = CardGameDemo.CARD_TYPE_COUNT;
+        int index = CardGame.CARD_TYPE_COUNT;
 
         List<Card> sortedCards = new ArrayList<Card>();
         List<Card> spareCards = new ArrayList<Card>();
@@ -423,6 +415,27 @@ public class SortHelper {
         sortedCards.addAll(spareCards);
 
         return new ArrayList<Card>(sortedCards);
+    }
+
+    private HashMap<Integer, List<Card>> getSuitBuckets(List<Card> cards) {
+        // create buckets for 4 types of suites
+        HashMap<Integer, List<Card>> buckets = new HashMap<Integer, List<Card>>(CardGame.CARD_TYPE_COUNT);
+
+        for (int i = 0; i < CardGame.CARD_TYPE_COUNT; i++)
+            buckets.put(i, new ArrayList<Card>());
+
+        for (Card card : cards) {
+            if (card.getSuitType().equals(Enums.SuitType.SPADES)) buckets.get(0).add(card);
+            else if (card.getSuitType().equals(Enums.SuitType.DIAMONDS)) buckets.get(1).add(card);
+            else if (card.getSuitType().equals(Enums.SuitType.HEARTS)) buckets.get(2).add(card);
+            else buckets.get(3).add(card);
+        }
+
+        // sort each bucket
+        for (int i = 0; i < CardGame.CARD_TYPE_COUNT; i++)
+            insertionSort(buckets.get(i));
+
+        return buckets;
     }
 
     private Integer getTotalPoint(List<Card> cards) {

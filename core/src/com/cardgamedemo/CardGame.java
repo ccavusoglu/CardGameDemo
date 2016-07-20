@@ -22,8 +22,12 @@ import java.util.List;
  * Game class. Should hold game specific parameters. Generate deck etc.
  */
 public class CardGame extends Game {
+    // game specific configurations
     private static final int DECK_SIZE = 52;
     private static final int HAND_SIZE = 11;
+    public static final int CARD_TYPE_COUNT = 4;
+    public static final float FOCUS_HEIGTH  = 48;
+
     private SplashScreen splashScreen;
     private Deck         deck;
 
