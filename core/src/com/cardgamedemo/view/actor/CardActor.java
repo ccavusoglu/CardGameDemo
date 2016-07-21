@@ -35,6 +35,14 @@ public class CardActor extends Group {
     private       boolean        focussed;
     private       Vector3        positionVector;
 
+    // testing const.
+    public CardActor() {
+        cardTexture = null;
+        cardFont = null;
+        mainController = null;
+        card = null;
+    }
+
     public CardActor(final MainController mainController, final int index, final Vector3 pos, float w, final Card card, AssetHelper assetHelper) {
         tiltAngle = pos.z;
         this.card = card;

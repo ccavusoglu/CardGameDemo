@@ -1,11 +1,11 @@
 package com.cardgamedemo.controller;
 
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.cardgamedemo.CardGame;
 import com.cardgamedemo.CardGameDemo;
 import com.cardgamedemo.entity.Card;
 import com.cardgamedemo.entity.Hand;
+import com.cardgamedemo.utils.Enums;
 import com.cardgamedemo.utils.SortHelper;
 import com.cardgamedemo.view.IHandLayout;
 import com.cardgamedemo.view.actor.CardActor;
@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -37,13 +38,34 @@ public class MainControllerTest {
         sut = new MainControllerFake(handLayout, cardGameDemo, sortHelper);
     }
 
+    @Test
+    public void arrangeCards_WhenArrangingIfThereIsAFocusedActor_ShouldClearItsFocus() throws Exception {
+        // arrange
+        CardActor cardActor = new CardActor();
+        cardActor.setFocussed(true);
+
+        HandGroup group = new HandGroup();
+        group.addActor(cardActor);
+
+        sut.setCardActors(new ArrayList<CardActor>());
+        sut.setLetAction(false);
+        sut.setHandGroup(group);
+        sut.setFocusedCard(cardActor);
+
+        // act
+        sut.arrangeCards();
+
+        // assert
+        Assert.assertTrue(!cardActor.getFocussed());
+    }
+
     // if an action in progress don't drag a card
     @Test
     public void drag_IfAnActionInProgress_DoNotDrag() throws Exception {
         // arrange
         CardActor cardActor = mock(CardActor.class);
 
-        sut.setActionFlag(false);
+        sut.setLetAction(false);
 
         // act
         boolean res = sut.drag(cardActor, 1f, 1f);
@@ -113,6 +135,51 @@ public class MainControllerTest {
         Assert.assertTrue(!group.hasChildren());
     }
 
+    @Test
+    public void focusOn_IfAnActionInProgress_DoNotFocus() throws Exception {
+        // arrange
+        CardActor cardActor = new CardActor();
+        CardActor cardActor1 = new CardActor();
+
+        HandGroup group = new HandGroup();
+        group.addActor(cardActor);
+        group.addActor(cardActor1);
+
+        sut.setLetAction(false);
+        sut.setHandGroup(group);
+        sut.setFocusedCard(null);
+
+        // act
+        sut.focusOn(cardActor);
+
+        // assert
+        Assert.assertTrue(!cardActor.getFocussed());
+    }
+
+    @Test
+    public void handDrawn_AfterLastCardsAnimation_LetOtherActions() throws Exception {
+        // arrange
+        CardActor cardActor = new CardActor();
+        CardActor cardActor1 = new CardActor();
+        List<Card> list = new ArrayList<Card>();
+        list.add(new Card());
+        list.add(new Card());
+
+        Hand hand = new Hand(list);
+
+        DeckActor deckActor = mock(DeckActor.class);
+
+        sut.setLetAction(false);
+        sut.setHand(hand);
+        sut.setDeckActor(deckActor);
+
+        // act
+        sut.handDrawn(list.size() - 1);
+
+        // assert
+        Assert.assertTrue(sut.isLetAction());
+    }
+
     // when arranging cards positions based on sorting or smth. do not initiate new arrangement until previous one is completed
     @Test
     public void reArrangeGroup_IfPreviousLayoutArrangementNotDone_DoNotInitiateNewLayoutArrangement() throws Exception {
@@ -121,6 +188,93 @@ public class MainControllerTest {
 
         // act
         boolean res = sut.reArrangeGroup();
+
+        // assert
+        Assert.assertTrue(!res);
+    }
+
+    @Test
+    public void sortPlayerCards_IfDrawByOrder_ShouldSortSequential() throws Exception {
+        // arrange
+        ArrayList<Card> list = new ArrayList<Card>();
+
+        Hand hand = mock(Hand.class);
+
+        sut.setLetAction(true);
+        sut.setHand(hand);
+
+        // act
+        boolean res = sut.sortPlayerCards(Enums.ButtonType.DRAW_ORDER);
+
+        // assert
+        Assert.assertTrue(res);
+        verify(sortHelper).sortSequential(list);
+    }
+
+    @Test
+    public void sortPlayerCards_IfDrawBySmartSort_ShouldSortSmart() throws Exception {
+        // arrange
+        ArrayList<Card> list = new ArrayList<Card>();
+
+        Hand hand = mock(Hand.class);
+
+        sut.setLetAction(true);
+        sut.setHand(hand);
+
+        // act
+        boolean res = sut.sortPlayerCards(Enums.ButtonType.DRAW_SMART);
+
+        // assert
+        Assert.assertTrue(res);
+        verify(sortHelper).sortSmart(list);
+    }
+
+    @Test
+    public void sortPlayerCards_IfDrawInGroups_ShouldSortInGroups() throws Exception {
+        // arrange
+        ArrayList<Card> list = new ArrayList<Card>();
+
+        Hand hand = mock(Hand.class);
+
+        sut.setLetAction(true);
+        sut.setHand(hand);
+
+        // act
+        boolean res = sut.sortPlayerCards(Enums.ButtonType.DRAW_GROUP);
+
+        // assert
+        Assert.assertTrue(res);
+        verify(sortHelper).sortInGroups(list);
+    }
+
+    @Test
+    public void sortPlayerCards_IfHandIsNull_ShouldCreateNewHand() throws Exception {
+        // arrange
+        ArrayList<Card> list = new ArrayList<Card>();
+
+        CardGame cardGame = mock(CardGame.class);
+
+        when(cardGame.draw()).thenReturn(list);
+        when(cardGameDemo.getGame()).thenReturn(cardGame);
+
+        sut.setLetAction(true);
+        sut.setHand(null);
+
+        // act
+        boolean res = sut.sortPlayerCards(Enums.ButtonType.DECK);
+
+        // assert
+        Assert.assertNotNull(sut.getHand());
+    }
+
+    @Test
+    public void sortPlayerCards_WhenNewSortRequestIfThereIsAnActionInProgress_ShouldNotLetSort() throws Exception {
+        // arrange
+        sut.setLetAction(false);
+        sut.setHand(null);
+
+        // act
+        boolean res = sut.sortPlayerCards(Enums.ButtonType.DECK);
 
         // assert
         Assert.assertTrue(!res);

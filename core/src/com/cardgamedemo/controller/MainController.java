@@ -50,8 +50,8 @@ public class MainController {
     private float                dragOffsetY;
     private CardActor            dragNextActorToCheck;
     private DeckActor            deckActor;
-    private boolean arranged   = false;
-    private boolean actionFlag = false;
+    private boolean arranged  = false;
+    private boolean letAction = false;
 
     public MainController() {
     }
@@ -71,7 +71,7 @@ public class MainController {
     }
 
     public boolean drag(CardActor actor, float x, float y) {
-        if (!actionFlag) return false;
+        if (!letAction) return false;
         float actorX = actor.getX();
 
         Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
@@ -118,7 +118,7 @@ public class MainController {
         handGroup.remove();
         cardActors.clear();
         deckActor.setVisible(false);
-        actionFlag = false;
+        letAction = false;
         createCardActors();
     }
 
@@ -130,7 +130,7 @@ public class MainController {
     }
 
     public void focusOn(CardActor cardActor) {
-        if (!actionFlag) return;
+        if (!letAction) return;
         if (focussedCard != null) focusOff(focussedCard);
 
         handGroup.swapActor(cardActor.getIndex(), cardActor.getIndex() + 1);
@@ -160,6 +160,14 @@ public class MainController {
         this.deckActor = deckActor;
     }
 
+    public Hand getHand() {
+        return hand;
+    }
+
+    public void setHand(Hand hand) {
+        this.hand = hand;
+    }
+
     public HandGroup getHandGroup() {
         return handGroup;
     }
@@ -180,8 +188,16 @@ public class MainController {
     public void handDrawn(int index) {
         if (index > hand.getCards().size() - 2) {
             deckActor.setVisible(true);
-            actionFlag = true;
+            letAction = true;
         }
+    }
+
+    public boolean isLetAction() {
+        return letAction;
+    }
+
+    public void setLetAction(boolean state) {
+        letAction = state;
     }
 
     public Stage prepareGameScreen(AssetHelper assetHelper) {
@@ -238,10 +254,6 @@ public class MainController {
         return false;
     }
 
-    public void setActionFlag(boolean state) {
-        actionFlag = state;
-    }
-
     public void setCardActors(ArrayList<CardActor> cardActors) {
         this.cardActors = cardActors;
     }
@@ -254,17 +266,13 @@ public class MainController {
         focussedCard = actor;
     }
 
-    public void setHand(Hand hand) {
-        this.hand = hand;
-    }
-
     public void setLayoutPositions(List<Vector3> layoutPositions) {
         this.layoutPositions = layoutPositions;
     }
 
-    public void sortPlayerCards(Enums.ButtonType buttonType) {
-        if (!actionFlag) return;
-        actionFlag = false;
+    public boolean sortPlayerCards(Enums.ButtonType buttonType) {
+        if (!letAction) return false;
+        letAction = false;
 
         if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
 
@@ -277,6 +285,8 @@ public class MainController {
         }
 
         arrangeCards();
+
+        return true;
     }
 
     protected void arrangeCards() {

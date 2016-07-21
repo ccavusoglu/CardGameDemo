@@ -107,6 +107,7 @@ public class SortHelperTest {
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S7"}));
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S3", "C3", "H3", "C4", "S4", "H4", "S1", "C1", "S2", "C2", "S7"}));
 
+        // 20
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C5", "S4", "H4", "S5"}));
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"C1", "C2", "C3", "S1", "S2", "S3", "S4", "S5", "H3", "H4", "C5"}));
 
