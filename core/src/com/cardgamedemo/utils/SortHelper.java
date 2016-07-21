@@ -106,14 +106,15 @@ public class SortHelper {
     }
 
     // maximum set cover to minimize spare cards total cost
+    // cross checks sets (groups & sequences) and finds the maximum coverage by a greedy approach
     public List<Card> sortSmart(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 
         // sort first for faster execution
         insertionSort(cards);
 
-        List<Integer> sequentialSetCosts = new ArrayList<Integer>();
-        List<Integer> sequentialSetCount = new ArrayList<Integer>();
+        ArrayList<Integer> sequentialSetCosts = new ArrayList<Integer>();
+        ArrayList<Integer> sequentialSetCount = new ArrayList<Integer>();
         HashMap<Integer, List<Card>> sequentialSets = new HashMap<Integer, List<Card>>();
         List<Integer> groupSetCount = new ArrayList<Integer>();
         HashMap<Integer, List<Card>> groupSets = new HashMap<Integer, List<Card>>();
@@ -126,10 +127,11 @@ public class SortHelper {
 
         List<Card> sortedCards = new ArrayList<Card>();
         HashMap<Integer, List<Card>> setBuckets = new HashMap<Integer, List<Card>>(CardGame.CARD_TYPE_COUNT);
-        int key = 0;
+        int key = 0, removeIndex = 0;
         // keep track of added sets to prevent duplication
         Map<Integer, Boolean> addedGroupSets = new HashMap<Integer, Boolean>();
         Map<Integer, Boolean> addedSequenceSets = new HashMap<Integer, Boolean>();
+        Map<String, Integer> mapSetsToBuckets = new HashMap<String, Integer>();
         addedGroupSets.put(0, false);
         addedGroupSets.put(1, false);
         addedGroupSets.put(2, false);
@@ -145,230 +147,281 @@ public class SortHelper {
         else if (sequentialSetCount.size() == 0) {
             sortedCards = groupSorted;
         } else {
-            // compare sets
-            for (Integer j = groupSetCount.size() - 1; j >= 0; j--) {
-                for (Integer k = sequentialSetCount.size() - 1; k >= 0; k--) {
-                    // cross check sets for conflicts
-                    if (groupSets.get(j).size() == 3 && sequentialSets.get(k).size() == 3) {
-                        // can't give a card
-                        if (groupSetCosts.get(j) >= sequentialSetCosts.get(k)) {
-                            if (!addedGroupSets.get(j)) {
-                                setBuckets.put(key++, groupSets.get(j));
-                                addedGroupSets.put(j, true);
-                            }
-                        } else if (!addedSequenceSets.get(k)) {
-                            setBuckets.put(key++, sequentialSets.get(k));
-                            addedSequenceSets.put(k, true);
-                        }
-                    } else {
-                        boolean conflict = false;
-                        // compare sets. starts with the highest cost
-                        List<Card> firstSet;
-                        List<Card> secondSet;
-                        List<Integer> firstSetCost;
-                        List<Integer> secondSetCost;
-                        boolean firstGroup = false;
-                        if (groupSetCosts.get(j) >= sequentialSetCosts.get(k)) {
-                            firstSet = groupSets.get(j);
-                            firstGroup = true;
-                            secondSet = sequentialSets.get(k);
-                            firstSetCost = groupSetCosts;
-                            secondSetCost = sequentialSetCosts;
-                        } else {
-                            firstSet = sequentialSets.get(k);
-                            secondSet = groupSets.get(j);
-                            firstSetCost = sequentialSetCosts;
-                            secondSetCost = groupSetCosts;
-                            int temp = j; // temp solution
-                            j = k;
-                            k = j;
-                        }
-                        int firstSetIndex = 0;
-                        for (Card card : firstSet) {
-                            firstSetIndex++;
-                            int sortIndex = 0;
-                            for (Card card1 : secondSet) {
-                                sortIndex++;
-                                if (card.equals(card1)) {
-                                    // conflict! should pick one or exchange a card
-                                    conflict = true;
-                                    // there may be only 1 conflict. break after this.
-                                    // check if without this card first set can exist
-                                    if (firstSet.size() > 3) {
-                                        // middle card 1 2 3 '4' 5 6 7
-                                        if ((firstSet.size() > 6 && firstSetIndex > 3 && firstSetIndex + 3 <= firstSet.size())) {
-                                            // remove this card from this set
-                                            firstSet.remove(card);
+            // compare sets. starts with the highest cost
+            List<Card> firstSet;
+            List<Card> secondSet;
+            List<Integer> firstSetCost;
+            List<Integer> secondSetCost;
+            List<Integer> firstSetCount = new ArrayList<Integer>();
+            List<Integer> secondSetCount = new ArrayList<Integer>();
+            Map<Integer, Boolean> firstAddedSets;
+            Map<Integer, Boolean> secondAddedSets;
+            boolean firstGroup = false;
+            int lastGroupSet = groupSetCount.size() - 1;
+            int lastSeqSet = sequentialSetCount.size() - 1;
+            String first;
+            String second;
 
-                                            // add divided sets and group
-                                            // in this case there can't be more than 2 groups. therefore no need to calculate new sets cost etc.
-                                            // loop will just end after this.
-                                            if (!addedGroupSets.get(j)) {
-                                                setBuckets.put(key++, secondSet);
-                                                addedGroupSets.put(j, true);
-                                            }
-                                            if (!addedSequenceSets.get(k)) {
-                                                setBuckets.put(key++, firstSet.subList(0, firstSetIndex - 1));
-                                                addedSequenceSets.put(k, true);
-                                            }
-                                            if (!addedSequenceSets.get(k + 1)) {
-                                                setBuckets.put(key++, firstSet.subList(firstSetIndex - 1, firstSet.size()));
-                                                addedSequenceSets.put(k + 1, true);
-                                            }
-                                            break;
+            if (groupSetCosts.get(lastGroupSet) >= sequentialSetCosts.get(lastSeqSet)) {
+                firstSet = groupSets.get(lastGroupSet);
+                firstGroup = true;
+                secondSet = sequentialSets.get(lastSeqSet);
+                firstSetCost = groupSetCosts;
+                secondSetCost = sequentialSetCosts;
+                firstSetCount = groupSetCount;
+                secondSetCount = sequentialSetCount;
+                firstAddedSets = addedGroupSets;
+                secondAddedSets = addedSequenceSets;
+                first = "G";
+                second = "S";
+            } else {
+                firstSet = sequentialSets.get(lastSeqSet);
+                secondSet = groupSets.get(lastGroupSet);
+                firstSetCost = sequentialSetCosts;
+                secondSetCost = groupSetCosts;
+                firstSetCount = sequentialSetCount;
+                secondSetCount = groupSetCount;
+                firstAddedSets = addedSequenceSets;
+                secondAddedSets = addedGroupSets;
+                first = "S";
+                second = "G";
+            }
+            for (Integer j = firstSetCount.size() - 1; j >= 0; j--) {
+                if (firstGroup) {
+                    firstSet = groupSets.get(j);
+                } else {
+                    firstSet = sequentialSets.get(j);
+                }
+                for (Integer k = secondSetCount.size() - 1; k >= 0; k--) {
+                    if (firstGroup) {
+                        secondSet = sequentialSets.get(k);
+                    } else {
+                        secondSet = groupSets.get(k);
+                    }
+                    boolean conflict = false;
+                    int firstSetIndex = 0;
+                    for (Card firstSetCard : firstSet) {
+                        firstSetIndex++;
+                        int secondSetIndex = 0;
+                        for (Card secondSetCard : secondSet) {
+                            secondSetIndex++;
+                            if (firstSetCard.equals(secondSetCard)) {
+                                // conflict! should pick one or exchange a card
+                                conflict = true;
+                                // there may be only 1 conflict. break after this.
+                                // check if without this card first set can exist
+                                if (firstSet.size() > 3) {
+                                    // middle card 1 2 3 '4' 5 6 7
+                                    if ((firstSet.size() > 6 && firstSetIndex > 3 && firstSetIndex + 3 <= firstSet.size())) {
+                                        // remove this card from this set
+                                        firstSet.remove(firstSetCard);
+
+                                        // add divided sets and group
+                                        // in this case there can't be more than 2 groups. therefore no need to calculate new sets cost etc.
+                                        // loop will just end after this.
+                                        if (!firstAddedSets.get(j)) {
+                                            mapSetsToBuckets.put(first + j, key);
+                                            setBuckets.put(key++, secondSet);
+                                            firstAddedSets.put(j, true);
                                         }
-                                        // first or last card. just remove '1' 2 3 3 || 1 2 3 '4'
-                                        else if (firstSetIndex == 1 || firstSetIndex == firstSet.size()) {
+                                        if (!secondAddedSets.get(k)) {
+                                            mapSetsToBuckets.put(second + k, key);
+                                            setBuckets.put(key++, firstSet.subList(0, firstSetIndex - 1));
+                                            secondAddedSets.put(k, true);
+                                        }
+                                        if (!secondAddedSets.get(k + 1)) {
+                                            mapSetsToBuckets.put(second + (k + 1), key);
+                                            setBuckets.put(key++, firstSet.subList(firstSetIndex - 1, firstSet.size()));
+                                            secondAddedSets.put(k + 1, true);
+                                        }
+                                        break;
+                                    }
+                                    // first or last card. just remove '1' 2 3 3 || 1 2 3 '4'
+                                    else if (firstGroup || firstSetIndex == 1 || firstSetIndex == firstSet.size()) {
+                                        // remove this card from this set
+                                        firstSet.remove(firstSetCard);
+                                        firstSetCost.set(j, firstSetCost.get(j) - firstSetCard.getPoint());
+                                        // add both sets to last list
+                                        if (!firstAddedSets.get(j)) {
+                                            mapSetsToBuckets.put(first + j, key);
+                                            setBuckets.put(key++, firstSet);
+                                            firstAddedSets.put(j, true);
+                                        }
+                                        if (!secondAddedSets.get(k)) {
+                                            mapSetsToBuckets.put(second + k, key);
+                                            setBuckets.put(key++, secondSet);
+                                            secondAddedSets.put(k, true);
+                                        }
+                                        break;
+                                    } else {
+                                        // this means there are 4-5-6-7-8 cards on the set
+                                        // should compare with and without cost to other set cost with or without this card
+                                        // then select one of them or both if sequence haven't broken
+                                        int cost = 0;
+                                        int m = 0;
+                                        int u = firstSetIndex - 1;
+                                        int n = firstSetIndex - 1;
+                                        int z = firstSet.size() - 1;
+
+                                        // may be middle 1 2 '3' 4 5 should calc. upper side
+                                        if (firstSetIndex > 3 || (firstSet.size() == 5 && firstSetIndex == 3)) {
+                                            m = firstSetIndex;
+                                            u = firstSet.size();
+                                            n = 0;
+                                            z = firstSetIndex - 1;
+                                        }
+
+                                        for (; m < u; m++) {
+                                            cost += firstSet.get(m).getPoint();
+                                        }
+
+                                        if (cost >= secondSetCost.get(k) - secondSetCard.getPoint()) {
+                                            // select first set
                                             // remove this card from this set
-                                            firstSet.remove(card);
-                                            firstSetCost.set(j, firstSetCost.get(j) - card.getPoint());
-                                            // add both sets to last list
-                                            if (!addedGroupSets.get(j)) {
+                                            secondSet.remove(secondSetCard);
+                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getPoint());
+                                            // add first set
+                                            if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
                                                 setBuckets.put(key++, firstSet);
-                                                addedGroupSets.put(j, true);
-                                            }
-                                            if (!addedSequenceSets.get(k)) {
-                                                setBuckets.put(key++, secondSet);
-                                                addedSequenceSets.put(k, true);
+                                                secondAddedSets.put(k, true);
                                             }
                                             break;
                                         } else {
-                                            // this means there are 4-5-6-7-8 cards on the set
-                                            // this is group. we can simply remove this card
-                                            if (firstGroup) {
-                                                firstSet.remove(card);
-                                                firstSetCost.set(j, firstSetCost.get(j) - card.getPoint());
+                                            // select second set
+                                            // remove this card from this set
+                                            firstSet.remove(firstSetCard);
+                                            firstSetCost.set(j, firstSetCost.get(j) - firstSetCard.getPoint());
+                                            // add first set
+                                            if (!firstAddedSets.get(j)) {
+                                                mapSetsToBuckets.put(first + j, key);
+                                                setBuckets.put(key++, secondSet);
+                                                firstAddedSets.put(j, true);
+                                            }
+                                            if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
+                                                setBuckets.put(key++, firstSet.subList(n, z));
+                                                secondAddedSets.put(k, true);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    if (secondSet.size() == 3) {
+                                        // 1 set should be picked
+                                        if (firstSetCost.get(j) >= secondSetCost.get(k)) {
+                                            if (secondAddedSets.get(k)) {
+                                                setBuckets.remove(mapSetsToBuckets.get(second + k));
+                                                removeIndex++;
+                                            }
 
-                                                if (!addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, firstSet);
-                                                    addedGroupSets.put(j, true);
-                                                }
-                                                if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, secondSet);
-                                                    addedSequenceSets.put(k, true);
-                                                }
-                                                break;
-                                            } else {
-                                                // should compare with and without cost to other set cost with or without this card
-                                                // then select one of them or both if sequence haven't broken
-                                                int cost = 0;
-                                                int m = 0;
-                                                int u = firstSetIndex - 1;
-                                                int n = firstSetIndex - 1;
-                                                int z = firstSet.size() - 1;
+                                            if (!firstAddedSets.get(j)) {
+                                                mapSetsToBuckets.put(first + j, key);
+                                                setBuckets.put(key++, firstSet);
+                                                firstAddedSets.put(j, true);
+                                            }
+                                        } else {
+                                            if (firstAddedSets.get(j)) {
+                                                setBuckets.remove(mapSetsToBuckets.get(first + j));
+                                                removeIndex++;
+                                            }
 
-                                                if (firstSetIndex > 3) {
-                                                    m = firstSetIndex;
-                                                    u = firstSet.size();
-                                                    n = 0;
-                                                    z = firstSetIndex - 1;
-                                                }
-
-                                                for (; m < u; m++) {
-                                                    cost += firstSet.get(m).getPoint();
-                                                }
-
-                                                if (cost > secondSetCost.get(j) - card1.getPoint()) {
-                                                    // select first set
-                                                    // remove this card from this set
-                                                    secondSet.remove(card1);
-                                                    secondSetCost.set(j, secondSetCost.get(j) - card1.getPoint());
-                                                    // add first set
-                                                    if (!addedSequenceSets.get(k)) {
-                                                        setBuckets.put(key++, firstSet);
-                                                        addedSequenceSets.put(k, true);
-                                                    }
-                                                    break;
-                                                } else {
-                                                    // select second set
-                                                    // remove this card from this set
-                                                    firstSet.remove(card);
-                                                    firstSetCost.set(j, firstSetCost.get(j) - card.getPoint());
-                                                    // add first set
-                                                    if (!addedGroupSets.get(j)) {
-                                                        setBuckets.put(key++, secondSet);
-                                                        addedGroupSets.put(j, true);
-                                                    }
-                                                    if (!addedSequenceSets.get(k)) {
-                                                        setBuckets.put(key++, firstSet.subList(n, z));
-                                                        addedSequenceSets.put(k, true);
-                                                    }
-                                                    break;
-                                                }
+                                            if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
+                                                setBuckets.put(key++, secondSet);
+                                                secondAddedSets.put(k, true);
                                             }
                                         }
                                     } else {
-                                        if (secondSet.size() == 3) {
-                                            // 1 set should be picked
-                                            if (firstSetCost.get(j) >= secondSetCost.get(k) && !addedGroupSets.get(j)) {
+                                        // check if sequential set can exist without this card
+                                        // if its first or last we can remove and pick both sets
+                                        if (secondSetIndex == 1 || secondSetIndex == secondSet.size()) {
+                                            secondSet.remove(secondSetIndex - 1);
+                                            // re calc. cost.
+                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getPoint());
+                                            if (!firstAddedSets.get(j)) {
+                                                mapSetsToBuckets.put(first + j, key);
                                                 setBuckets.put(key++, firstSet);
-                                                addedGroupSets.put(j, true);
-                                            } else if (!addedSequenceSets.get(k)) {
+                                                firstAddedSets.put(j, true);
+                                            }
+                                            if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
                                                 setBuckets.put(key++, secondSet);
-                                                addedSequenceSets.put(k, true);
+                                                secondAddedSets.put(k, true);
+                                            }
+                                            break;
+                                        }
+                                        // if its at 4th or after add cards up to sort index. e.g: 1 2 3 '4' 5 add 1 2 3
+                                        else if (secondSetIndex > 3) {
+                                            if (!firstAddedSets.get(j)) {
+                                                mapSetsToBuckets.put(first + j, key);
+                                                setBuckets.put(key++, firstSet);
+                                                firstAddedSets.put(j, true);
+                                            }
+                                            if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
+                                                setBuckets.put(key++, secondSet.subList(0, secondSetIndex - 1));
+                                                secondAddedSets.put(k, true);
+                                                // re calc. cost.
+                                                secondSetIndex--;
+                                                int diff = secondSet.size() - secondSetIndex;
+                                                while (diff-- > 0) secondSetCost.set(k, secondSetCost.get(k) - secondSet.get(secondSetIndex++).getPoint());
                                             }
                                         } else {
-                                            // check if sequential set can exist without this card
-                                            // if its first or last we can remove and pick both sets
-                                            if (sortIndex == 1 || sortIndex == secondSet.size()) {
-                                                secondSet.remove(sortIndex - 1);
-                                                // re calc. cost.
-                                                secondSetCost.set(k, secondSetCost.get(k) - card1.getPoint());
-                                                if (!addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, firstSet);
-                                                    addedGroupSets.put(j, true);
-                                                }
-                                                if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, secondSet);
-                                                    addedSequenceSets.put(k, true);
-                                                }
-                                                break;
+                                            // 1 set should be picked
+                                            if (firstSetCost.get(j) >= secondSetCost.get(k) && !firstAddedSets.get(j)) {
+                                                mapSetsToBuckets.put(first + j, key);
+                                                setBuckets.put(key++, firstSet);
+                                                firstAddedSets.put(j, true);
+                                            } else if (!secondAddedSets.get(k)) {
+                                                mapSetsToBuckets.put(second + k, key);
+                                                setBuckets.put(key++, secondSet);
+                                                secondAddedSets.put(k, true);
                                             }
-                                            // if its at 4th or after add cards up to sort index. e.g: 1 2 3 '4' 5 add 1 2 3
-                                            else if (sortIndex > 3) {
-                                                if (!addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, firstSet);
-                                                    addedGroupSets.put(j, true);
-                                                }
-                                                if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, secondSet.subList(0, sortIndex));
-                                                    addedSequenceSets.put(k, true);
-                                                    // re calc. cost.
-                                                    sortIndex--;
-                                                    int diff = secondSet.size() - sortIndex;
-                                                    while (diff-- > 0) secondSetCost.set(k, secondSetCost.get(k) - secondSet.get(sortIndex++).getPoint());
-                                                }
-                                            } else {
-                                                // 1 set should be picked
-                                                if (firstSetCost.get(j) >= secondSetCost.get(k) && !addedGroupSets.get(j)) {
-                                                    setBuckets.put(key++, firstSet);
-                                                    addedGroupSets.put(j, true);
-                                                } else if (!addedSequenceSets.get(k)) {
-                                                    setBuckets.put(key++, secondSet);
-                                                    addedSequenceSets.put(k, true);
-                                                }
-                                                break;
-                                            }
+                                            break;
                                         }
                                     }
                                 }
                             }
-                            if (conflict) break;
+                        }
+
+                        if (conflict) break;
+                    }
+                    // no conflict. add both
+                    if (!conflict) {
+                        if (firstSet.size() == 3 && secondSet.size() == 3) {
+                            if (!firstAddedSets.get(j)) {
+                                mapSetsToBuckets.put(first + j, key);
+                                setBuckets.put(key++, firstSet);
+                                firstAddedSets.put(j, true);
+                            }
+
+                            if (!secondAddedSets.get(k)) {
+                                mapSetsToBuckets.put(second + k, key);
+                                setBuckets.put(key++, secondSet);
+                                secondAddedSets.put(k, true);
+                            }
                         }
                     }
                 }
             }
 
             // order sets in between
+            Integer i = 0;
+            HashMap<Integer, List<Card>> tempBucket = new HashMap<Integer, List<Card>>();
+            for (Map.Entry<Integer, List<Card>> entry : setBuckets.entrySet()) {
+                tempBucket.put(i++, entry.getValue());
+            }
+
             ArrayList<Integer> bucketCosts = new ArrayList<Integer>();
-            for (int i = 0; i < key; i++) {
-                bucketCosts.add(getTotalPoint(setBuckets.get(i)));
+            for (i = 0; i < key - removeIndex; i++) {
+                bucketCosts.add(getTotalPoint(tempBucket.get(i)));
             }
 
             // sort buckets
-            HashMap<Integer, List<Card>> sortedBuckets = sortByArray(setBuckets, bucketCosts);
+            HashMap<Integer, List<Card>> sortedBuckets = sortByArray(tempBucket, bucketCosts);
 
-            for (int i = 0; i < bucketCosts.size(); i++) {
+            for (i = 0; i < bucketCosts.size(); i++) {
                 sortedCards.addAll(sortedBuckets.get(i));
             }
 
@@ -444,15 +497,22 @@ public class SortHelper {
         return sortedCards;
     }
 
-    private List<Card> getSortSequential(HashMap<Integer, List<Card>> buckets, HashMap<Integer, List<Card>> sequentialSets, List<Integer> sequentialSetCount,
-                                         List<Integer> sequentialSetCosts) {
+    private List<Card> getSortSequential(HashMap<Integer, List<Card>> buckets, HashMap<Integer, List<Card>> sequentialSets, ArrayList<Integer> sequentialSetCount,
+                                         ArrayList<Integer> sequentialSetCosts) {
         // begin index to get spare cards for each bucket
         int[] groupIndexStart = {0, 0, 0, 0};
         int[] groupIndexEnd = {1, 1, 1, 1};
         int index = CardGame.CARD_TYPE_COUNT;
 
+        //
+        if (sequentialSetCosts == null) sequentialSetCosts = new ArrayList<Integer>();
+        if (sequentialSetCount == null) sequentialSetCount = new ArrayList<Integer>();
+        if (sequentialSets == null) sequentialSets = new HashMap<Integer, List<Card>>();
+        HashMap<Integer, List<Card>> sortedBuckets = new HashMap<Integer, List<Card>>();
+
         List<Card> sortedCards = new ArrayList<Card>();
         List<Card> spareCards = new ArrayList<Card>();
+        ArrayList<Integer> addedBucketIndex = new ArrayList<Integer>();
         int setIndex = 0;
 
         // loop for each bucket
@@ -469,11 +529,9 @@ public class SortHelper {
                 else if (j == buckets.get(i).size()) {
                     // 3 or more ordered left
                     if (groupIndexEnd[i] == buckets.get(i).size() && curOrder > 1) {
-                        sortedCards.addAll(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
+                        sortedBuckets.put(i, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
+                        addedBucketIndex.add(i);
                         //
-                        if (sequentialSetCount != null) sequentialSetCount.add(setIndex);
-                        if (sequentialSets != null) sequentialSets.put(setIndex++, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-                        if (sequentialSetCosts != null) sequentialSetCosts.add(getTotalPoint(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i])));
                     }
                     // 1 card left
                     else if (curOrder == 0) spareCards.add(buckets.get(i).get(j - 1));
@@ -486,12 +544,9 @@ public class SortHelper {
                     groupIndexEnd[i] = j + 1;
                 } else {
                     if (curOrder > 1) {
-                        sortedCards.addAll(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-
+                        sortedBuckets.put(i, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
+                        addedBucketIndex.add(i);
                         //
-                        if (sequentialSetCount != null) sequentialSetCount.add(setIndex);
-                        if (sequentialSets != null) sequentialSets.put(setIndex++, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-                        if (sequentialSetCosts != null) sequentialSetCosts.add(getTotalPoint(buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i])));
                         groupIndexStart[i] = j;
                         groupIndexEnd[i] = j + 1;
                     } else {
@@ -503,6 +558,26 @@ public class SortHelper {
                     curOrder = 0;
                 }
             }
+        }
+
+        HashMap<Integer, Integer> setCompare = new HashMap<Integer, Integer>();
+
+        int k = 0;
+        for (Integer i : addedBucketIndex) {
+            sequentialSetCosts.add(getTotalPoint(sortedBuckets.get(i)));
+
+            setCompare.put(i, sequentialSetCosts.get(k++));
+            sequentialSetCount.add(k);
+        }
+
+        insertionSort(setCompare, addedBucketIndex);
+
+        sequentialSetCosts.clear();
+        k = 0;
+        for (Integer i : addedBucketIndex) {
+            sortedCards.addAll(sortedBuckets.get(i));
+            sequentialSets.put(k++, sortedBuckets.get(i));
+            sequentialSetCosts.add(getTotalPoint(sortedBuckets.get(i)));
         }
 
         // add spare cards to the list

@@ -33,7 +33,7 @@ public class DeckActor extends Actor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 addAction(Actions.sequence(Actions.scaleBy(0.1f, 0.1f, 0.02f, Interpolation.exp10Out), Actions.scaleTo(1, 1, 0.03f, Interpolation.exp10In)));
 
-                mainController.drawPlayerCards(Enums.ButtonType.DECK);
+                mainController.drawPlayerCards();
 
                 return true;
             }

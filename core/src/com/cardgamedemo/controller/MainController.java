@@ -1,6 +1,5 @@
 package com.cardgamedemo.controller;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -51,9 +50,11 @@ public class MainController {
     private float                dragOffsetY;
     private CardActor            dragNextActorToCheck;
     private DeckActor            deckActor;
-    private boolean arranged        = false;
-    private boolean arrangingLayout = false;
-    private boolean actionFlag      = false;
+    private boolean arranged   = false;
+    private boolean actionFlag = false;
+
+    public MainController() {
+    }
 
     public MainController(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
         this.handLayout = handLayout;
@@ -69,8 +70,8 @@ public class MainController {
         focussedCard = null;
     }
 
-    public void drag(CardActor actor, float x, float y) {
-        if (!actionFlag || arrangingLayout) return;
+    public boolean drag(CardActor actor, float x, float y) {
+        if (!actionFlag) return false;
         float actorX = actor.getX();
 
         Vector2 coords = actor.localToParentCoordinates(new Vector2(x, y));
@@ -80,13 +81,13 @@ public class MainController {
         // actor moving left or right
         if (actorX > coords.x - dragOffsetX) {
             // no card to check on its left
-            if (actor.getIndex() == 0) return;
+            if (actor.getIndex() == 0) return false;
 
             dragNextActorToCheck = cardActors.get(actor.getIndex() - 1);
             direction = true;
         } else {
             // no card to check on its right
-            if (actor.getIndex() + 1 == cardActors.size()) return;
+            if (actor.getIndex() + 1 == cardActors.size()) return false;
 
             dragNextActorToCheck = cardActors.get(actor.getIndex() + 1);
             direction = false;
@@ -95,6 +96,8 @@ public class MainController {
         if (actor.overlaps(dragNextActorToCheck, direction)) {
             swapActorPositions(actor, dragNextActorToCheck);
         }
+
+        return true;
     }
 
     public void dragStart(CardActor actor, float x, float y) {
@@ -109,32 +112,14 @@ public class MainController {
         actor.moveToNewPosition(lastCardActorPos);
     }
 
-    public void drawPlayerCards(Enums.ButtonType buttonType) {
-        if (buttonType == Enums.ButtonType.DECK) {
-            hand = new Hand(cardGameDemo.getGame().draw());
-            handGroup.clear();
-            handGroup.remove();
-            cardActors.clear();
-            arrangingLayout = false;
-            deckActor.setVisible(false);
-            actionFlag = false;
-            createCardActors();
-        } else {
-            if (arrangingLayout || !actionFlag) return;
-            arrangingLayout = true;
-
-            if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
-
-            if (buttonType == Enums.ButtonType.DRAW_ORDER) {
-                hand.setCards(sortHelper.sortSequential(hand.getCards()));
-            } else if (buttonType == Enums.ButtonType.DRAW_GROUP) {
-                hand.setCards(sortHelper.sortInGroups(hand.getCards()));
-            } else {
-                hand.setCards(sortHelper.sortSmart(hand.getCards()));
-            }
-
-            arrangeCards();
-        }
+    public void drawPlayerCards() {
+        hand = new Hand(cardGameDemo.getGame().draw());
+        handGroup.clear();
+        handGroup.remove();
+        cardActors.clear();
+        deckActor.setVisible(false);
+        actionFlag = false;
+        createCardActors();
     }
 
     public void focusOff(CardActor cardActor) {
@@ -145,7 +130,7 @@ public class MainController {
     }
 
     public void focusOn(CardActor cardActor) {
-        if (arrangingLayout || !actionFlag) return;
+        if (!actionFlag) return;
         if (focussedCard != null) focusOff(focussedCard);
 
         handGroup.swapActor(cardActor.getIndex(), cardActor.getIndex() + 1);
@@ -159,9 +144,41 @@ public class MainController {
         stage.draw();
     }
 
+    public boolean getArranged() {
+        return arranged;
+    }
+
+    public void setArranged(boolean arranged) {
+        this.arranged = arranged;
+    }
+
+    public DeckActor getDeckActor() {
+        return deckActor;
+    }
+
+    public void setDeckActor(DeckActor deckActor) {
+        this.deckActor = deckActor;
+    }
+
+    public HandGroup getHandGroup() {
+        return handGroup;
+    }
+
+    public void setHandGroup(HandGroup handGroup) {
+        this.handGroup = handGroup;
+    }
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
     // after last cards action, deck is available
     public void handDrawn(int index) {
-        if (index > 9) {
+        if (index > hand.getCards().size() - 2) {
             deckActor.setVisible(true);
             actionFlag = true;
         }
@@ -201,7 +218,7 @@ public class MainController {
         return stage;
     }
 
-    public void reArrangeGroup() {
+    public boolean reArrangeGroup() {
         if (!arranged) {
             handGroup.clear();
             ArrayList<CardActor> tempActors = new ArrayList<CardActor>();
@@ -216,16 +233,54 @@ public class MainController {
             }
 
             cardActors = tempActors;
-            arranged = true;
+            return (arranged = true);
         }
+        return false;
     }
 
-    public void setLayoutArranged(int index) {
-        if (index > 9) arrangingLayout = false;
+    public void setActionFlag(boolean state) {
+        actionFlag = state;
     }
 
-    private void arrangeCards() {
-        // dont move the card if it had focus
+    public void setCardActors(ArrayList<CardActor> cardActors) {
+        this.cardActors = cardActors;
+    }
+
+    public void setCardGameDemo(CardGameDemo cardGameDemo) {
+        this.cardGameDemo = cardGameDemo;
+    }
+
+    public void setFocusedCard(CardActor actor) {
+        focussedCard = actor;
+    }
+
+    public void setHand(Hand hand) {
+        this.hand = hand;
+    }
+
+    public void setLayoutPositions(List<Vector3> layoutPositions) {
+        this.layoutPositions = layoutPositions;
+    }
+
+    public void sortPlayerCards(Enums.ButtonType buttonType) {
+        if (!actionFlag) return;
+        actionFlag = false;
+
+        if (hand == null) hand = new Hand(cardGameDemo.getGame().draw());
+
+        if (buttonType == Enums.ButtonType.DRAW_ORDER) {
+            hand.setCards(sortHelper.sortSequential(hand.getCards()));
+        } else if (buttonType == Enums.ButtonType.DRAW_GROUP) {
+            hand.setCards(sortHelper.sortInGroups(hand.getCards()));
+        } else {
+            hand.setCards(sortHelper.sortSmart(hand.getCards()));
+        }
+
+        arrangeCards();
+    }
+
+    protected void arrangeCards() {
+        // don't move the card if it had focus
         float height = FOCUS_HEIGHT;
         if (focussedCard != null) {
             clearFocus(focussedCard);
@@ -244,7 +299,7 @@ public class MainController {
                     cardActor.reArrangeLayout(layoutPositions.get(i), i, height, new Runnable() {
                         @Override
                         public void run() {
-                            setLayoutArranged(index);
+                            handDrawn(index);
                         }
                     });
                     break;
@@ -254,7 +309,7 @@ public class MainController {
         }
     }
 
-    private void createCardActors() {
+    protected void createCardActors() {
         int i = 0;
         for (Card card : hand.getCards()) {
             CardActor cardActor = new CardActor(this, i, layoutPositions.get(i++), handLayout.getCardWidth(), card, assetHelper);
@@ -265,7 +320,7 @@ public class MainController {
         stage.addActor(handGroup);
     }
 
-    private void swapActorPositions(CardActor dragged, CardActor target) {
+    protected void swapActorPositions(CardActor dragged, CardActor target) {
         if (dragged.getFocussed()) clearFocus(dragged);
         if (target.getFocussed()) clearFocus(target);
         if (focussedCard != null) focusOff(focussedCard);
@@ -289,6 +344,6 @@ public class MainController {
 
         Collections.swap(cardActors, dragged.getIndex(), target.getIndex());
 
-        Gdx.app.log(TAG, "Target: " + target.toString() + " Dragged: " + dragged.toString() + " LastPos: " + lastCardActorPos.toString());
+        //        Gdx.app.log(TAG, "Target: " + target.toString() + " Dragged: " + dragged.toString() + " LastPos: " + lastCardActorPos.toString());
     }
 }
