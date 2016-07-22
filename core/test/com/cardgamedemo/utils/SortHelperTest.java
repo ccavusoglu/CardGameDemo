@@ -99,20 +99,24 @@ public class SortHelperTest {
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S3", "H3", "C3", "S4", "S5", "S6", "S7", "S8", "S1", "S2", "D5"}));
 
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "S4", "S5", "H7", "D5", "C7", "S8", "S6", "S7"}));
-        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"H7", "C7", "S7", "S1", "S2", "S3", "S4", "S5", "S6", "D5", "S8"}));
+        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S1", "S2", "S3", "S4", "S5", "S6", "H7", "C7", "S7", "D5", "S8"}));
 
         sortCases.put(i, mapStrToCards(new String[]{"S13", "S12", "S11", "S10", "S9", "S8", "S7", "S6", "S5", "H11", "C11"}));
-        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{ "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "H11", "C11"}));
+        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13", "H11", "C11"}));
 
-        sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S7"}));
-        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S3", "C3", "H3", "C4", "S4", "H4", "S1", "C1", "S2", "C2", "S7"}));
-
-        // 20
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C5", "S4", "H4", "S5"}));
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"C1", "C2", "C3", "S1", "S2", "S3", "S4", "S5", "H3", "H4", "C5"}));
 
+        // 20
         sortCases.put(i, mapStrToCards(new String[]{"S13", "C8", "S7", "H6", "H2", "H3", "D3", "S3", "H12", "H11", "H10"}));
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"H3", "D3", "S3", "H10", "H11", "H12", "H2", "H6", "S7", "C8", "S13"}));
+
+        sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S5"}));
+        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"C1", "C2", "C3", "C4", "S1", "S2", "S3", "S4", "S5", "H3", "H4"}));
+
+        //22
+        sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S7"}));
+        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S1", "S2", "S3", "C1", "C2", "C3", "C4", "S4", "H4", "H3", "S7"}));
     }
 
     @Test
@@ -155,15 +159,28 @@ public class SortHelperTest {
     }
 
     @Test
+    public void sortSmart2_GivenAListInput_SortByGroupsAndSequences() throws Exception {
+        // arrange
+
+        // act
+        for (int i = 8; i < 23; i++)
+            sortCasesResults.put(i, sut.sortSmart2(sortCases.get(i)));
+
+        // assert
+        for (int i = 8; i < 23; i++)
+            Assert.assertArrayEquals("Failed: " + i, sortCasesResults.get(i).toArray(), sortCasesExpectedResults.get(i).toArray());
+    }
+
+    @Test
     public void sortSmart_GivenAListInput_SortByGroupsAndSequences() throws Exception {
         // arrange
 
         // act
-        for (int i = 8; i < 22; i++)
+        for (int i = 8; i < 21; i++)
             sortCasesResults.put(i, sut.sortSmart(sortCases.get(i)));
 
         // assert
-        for (int i = 8; i < 22; i++)
+        for (int i = 8; i < 21; i++)
             Assert.assertArrayEquals("Failed: " + i, sortCasesResults.get(i).toArray(), sortCasesExpectedResults.get(i).toArray());
     }
 

@@ -37,6 +37,18 @@ public class GameScreen extends AbstractScreen {
     }
 
     @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        Gdx.app.log(TAG, "touchDown: " + screenX + " " + screenY);
+        return super.touchDown(screenX, screenY, pointer, button);
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        Gdx.app.log(TAG, "touchDragged: " + screenX + " " + screenY);
+        return super.touchDragged(screenX, screenY, pointer);
+    }
+
+    @Override
     public void show() {
 
     }
@@ -64,18 +76,6 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void dispose() {
         super.dispose();
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Gdx.app.log(TAG, "touchDown: " + screenX + " " + screenY);
-        return super.touchDown(screenX, screenY, pointer, button);
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        Gdx.app.log(TAG, "touchDragged: " + screenX + " " + screenY);
-        return super.touchDragged(screenX, screenY, pointer);
     }
 
     @Override

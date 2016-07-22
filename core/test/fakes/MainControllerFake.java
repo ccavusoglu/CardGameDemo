@@ -10,7 +10,7 @@ import com.cardgamedemo.view.IHandLayout;
  */
 public class MainControllerFake extends MainController {
     public MainControllerFake(IHandLayout handLayout, CardGameDemo cardGameDemo, SortHelper sortHelper) {
-        super(handLayout, cardGameDemo,  sortHelper);
+        super(handLayout, cardGameDemo, sortHelper);
     }
 
     @Override

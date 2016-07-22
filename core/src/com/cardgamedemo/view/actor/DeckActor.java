@@ -9,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.cardgamedemo.controller.MainController;
 import com.cardgamedemo.utils.AssetHelper;
-import com.cardgamedemo.utils.Enums;
 
 /**
  * Created by Çağatay Çavuşoğlu on 14.07.2016.
@@ -39,7 +38,7 @@ public class DeckActor extends Actor {
             }
         });
 
-//        debug();
+        //        debug();
     }
 
     @Override

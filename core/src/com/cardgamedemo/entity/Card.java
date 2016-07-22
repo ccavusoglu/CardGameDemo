@@ -30,6 +30,10 @@ public class Card {
         return obj instanceof Card && suitType == ((Card) obj).getSuitType() && order == ((Card) obj).getOrder();
     }
 
+    public String toString() {
+        return "[" + suitType.toString() + ":" + order + "]";
+    }
+
     public Enums.CardType getCardType() {
         return cardType;
     }
@@ -54,13 +58,9 @@ public class Card {
         return suitType;
     }
 
-    public void setSuitAndOrder(Enums.SuitType suitType,  int order) {
+    public void setSuitAndOrder(Enums.SuitType suitType, int order) {
         this.suitType = suitType;
         this.order = order;
         this.point = order > 10 ? 10 : order;
-    }
-
-    public String toString() {
-        return "[" + suitType.toString() + ":" + order + "]";
     }
 }

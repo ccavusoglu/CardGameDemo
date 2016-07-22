@@ -8,8 +8,8 @@ import com.cardgamedemo.infrastructure.di.MainModule;
 import javax.inject.Inject;
 
 public class CardGameDemo extends ApplicationAdapter {
-    public static final int WORLD_WIDTH     = 1280;
-    public static final int WORLD_HEIGHT    = 720;
+    public static final int WORLD_WIDTH  = 1280;
+    public static final int WORLD_HEIGHT = 720;
 
     private final MainComponent component;
     @Inject       CardGame      cardGame;

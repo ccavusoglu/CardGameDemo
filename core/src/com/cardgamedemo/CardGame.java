@@ -22,12 +22,11 @@ import java.util.List;
  * Game class. Should hold game specific parameters. Generate deck etc.
  */
 public class CardGame extends Game {
+    public static final  int   CARD_TYPE_COUNT = 4;
+    public static final  float FOCUS_HEIGTH    = 48;
     // game specific configurations
-    private static final int DECK_SIZE = 52;
-    private static final int HAND_SIZE = 11;
-    public static final int CARD_TYPE_COUNT = 4;
-    public static final float FOCUS_HEIGTH  = 48;
-
+    private static final int   DECK_SIZE       = 52;
+    private static final int   HAND_SIZE       = 11;
     private SplashScreen splashScreen;
     private Deck         deck;
 
@@ -50,19 +49,19 @@ public class CardGame extends Game {
         //        return cards;
         //
         // TEST deck
-//                                List<Card> cards = new ArrayList<Card>();
-//
-//                                cards.add(deck.getCards().get(4));
-//                                cards.add(deck.getCards().get(48));
-//                                cards.add(deck.getCards().get(29));
-//                                cards.add(deck.getCards().get(14));
-//                                cards.add(deck.getCards().get(32));
-//                                cards.add(deck.getCards().get(33));
-//                                cards.add(deck.getCards().get(10));
-//                                cards.add(deck.getCards().get(7));
-//                                cards.add(deck.getCards().get(11));
-//                                cards.add(deck.getCards().get(43));
-//                                cards.add(deck.getCards().get(36));
+        //                                List<Card> cards = new ArrayList<Card>();
+        //
+        //                                cards.add(deck.getCards().get(4));
+        //                                cards.add(deck.getCards().get(48));
+        //                                cards.add(deck.getCards().get(29));
+        //                                cards.add(deck.getCards().get(14));
+        //                                cards.add(deck.getCards().get(32));
+        //                                cards.add(deck.getCards().get(33));
+        //                                cards.add(deck.getCards().get(10));
+        //                                cards.add(deck.getCards().get(7));
+        //                                cards.add(deck.getCards().get(11));
+        //                                cards.add(deck.getCards().get(43));
+        //                                cards.add(deck.getCards().get(36));
         //
         Gdx.app.log("------", "----------------------------");
         for (Card card : cards) {

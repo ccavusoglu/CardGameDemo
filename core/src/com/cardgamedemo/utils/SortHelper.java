@@ -290,17 +290,30 @@ public class SortHelper {
                                         } else {
                                             // select second set
                                             // remove this card from this set
-                                            firstSet.remove(firstSetCard);
-                                            firstSetCost.set(j, firstSetCost.get(j) - firstSetCard.getPoint());
+                                            int temp = firstSetIndex;
+                                            int diff = 0;
+
+                                            // right side
+                                            if (firstSetIndex > firstSet.size() / 2) {
+                                                firstSetIndex--;
+                                                diff = firstSet.size() - firstSetIndex;
+                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getPoint());
+                                                while (diff-- > 0) firstSet.remove(firstSet.size() - 1);
+                                            } else {
+                                                diff = temp;
+                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getPoint());
+                                                while (diff-- > 0) firstSet.remove(0);
+                                            }
+                                            firstSetIndex = temp;
                                             // add first set
                                             if (!firstAddedSets.get(j)) {
                                                 mapSetsToBuckets.put(first + j, key);
-                                                setBuckets.put(key++, secondSet);
+                                                setBuckets.put(key++, firstSet);
                                                 firstAddedSets.put(j, true);
                                             }
                                             if (!secondAddedSets.get(k)) {
                                                 mapSetsToBuckets.put(second + k, key);
-                                                setBuckets.put(key++, firstSet.subList(n, z));
+                                                setBuckets.put(key++, secondSet);
                                                 secondAddedSets.put(k, true);
                                             }
                                             break;
@@ -435,6 +448,114 @@ public class SortHelper {
         Gdx.app.log("Smart Sort in: ", TimeUtils.timeSinceMillis(beginTime) + " ms");
 
         return sortedCards;
+    }
+
+    public List<Card> sortSmart2(List<Card> cards) {
+        ArrayList<Integer> sequentialSetCosts = new ArrayList<Integer>();
+        ArrayList<Integer> sequentialSetCount = new ArrayList<Integer>();
+        HashMap<Integer, List<Card>> sequentialSets = new HashMap<Integer, List<Card>>();
+        List<Integer> groupSetCount = new ArrayList<Integer>();
+        HashMap<Integer, List<Card>> groupSets = new HashMap<Integer, List<Card>>();
+        List<Integer> groupSetCosts = new ArrayList<Integer>();
+        List<Card> sortedCards = new ArrayList<Card>();
+
+        // first sort by groups
+        List<Card> groupSorted = getSortByGroup(cards, groupSets, groupSetCount, groupSetCosts);
+        // sort by sequences
+        List<Card> orderSorted = getSortSequential(getSuitBuckets(cards), sequentialSets, sequentialSetCount, sequentialSetCosts);
+
+        // no groups. pick all sequences
+        if (groupSetCount.size() == 0) {
+            return orderSorted;
+        }
+        // no sequences pick all groups
+        else if (sequentialSetCount.size() == 0) {
+            return groupSorted;
+        } else if (groupSetCount.size() == 0 && sequentialSetCount.size() == 0) {
+            return orderSorted;
+        }
+
+        List<CardSet> cardSets = new ArrayList<CardSet>();
+
+        // get all combination of sets (min 3 card)
+        // create Set objects
+        int id = 0;
+        for (int i = 0; i < sequentialSetCount.size(); i++) {
+            int size = sequentialSets.get(i).size() + 1;
+            while (size-- != 3) {
+                for (int j = 0; j < sequentialSets.get(i).size() - size + 1; j++) {
+                    cardSets.add(new CardSet(id++, sequentialSets.get(i).subList(j, j + size)));
+                }
+            }
+        }
+
+        for (int i = 0; i < groupSetCount.size(); i++) {
+            cardSets.add(new CardSet(id++, groupSets.get(i)));
+
+            if (groupSets.get(i).size() > 3) {
+                groupCombinations(id, cardSets, groupSets.get(i));
+            }
+        }
+
+        List<CardSet> setLeft = new ArrayList<CardSet>();
+        setLeft.addAll(cardSets);
+
+        List<Integer> finalValues = new ArrayList<Integer>();
+        List<List<Integer>> finalSets = new ArrayList<List<Integer>>();
+
+        // generate index list
+        // sort!
+        for (CardSet cardSet : cardSets) {
+            ArrayList<Integer> arr = new ArrayList<Integer>();
+            arr.add(cardSet.id);
+            finalSets.add(arr);
+
+            finalValues.add(recursiveSort(cardSet, setLeft, arr));
+            setLeft.remove(cardSet);
+        }
+
+        int maxValueIndex = 0;
+        int maxValue = 0;
+
+        for (int i = 0; i < finalValues.size(); i++) {
+            if (finalValues.get(i) > maxValue) {
+                maxValue = finalValues.get(i);
+                maxValueIndex = i;
+            }
+        }
+
+        List<CardSet> maxValuedSets = new ArrayList<CardSet>();
+
+        for (Integer setId : finalSets.get(maxValueIndex)) {
+            maxValuedSets.add(cardSets.get(setId));
+        }
+
+        // sort sets based on their values
+        bubbleSort(maxValuedSets);
+
+        // add sorted cards
+        for (CardSet cardSet : maxValuedSets)
+            sortedCards.addAll(cardSet.cards);
+
+        // add spare cards
+        for (Card card : groupSorted)
+            if (!sortedCards.contains(card)) sortedCards.add(card);
+
+        return sortedCards;
+    }
+
+    // ascending bubble sort
+    private void bubbleSort(List<CardSet> list) {
+        boolean end = false;
+        while (!end) {
+            end = true;
+            for (int i = 0; i < list.size() - 1; i++) {
+                if (list.get(i).value > list.get(i + 1).value) {
+                    Collections.swap(list, i, i + 1);
+                    end = false;
+                }
+            }
+        }
     }
 
     private List<Card> getSortByGroup(List<Card> cards, HashMap<Integer, List<Card>> groupSets, List<Integer> groupSetCount, List<Integer> groupSetCosts) {
@@ -614,5 +735,73 @@ public class SortHelper {
             total += card.getPoint();
 
         return total;
+    }
+
+    private void groupCombinations(int i, List<CardSet> cardSets, List<Card> cards) {
+        List<Card> cards1 = new ArrayList<Card>(3);
+        cards1.add(cards.get(0));
+        cards1.add(cards.get(1));
+        cards1.add(cards.get(2));
+        cardSets.add(new CardSet(i++, cards1));
+        List<Card> cards2 = new ArrayList<Card>(3);
+        cards2.add(cards.get(0));
+        cards2.add(cards.get(1));
+        cards2.add(cards.get(3));
+        cardSets.add(new CardSet(i++, cards2));
+        List<Card> cards3 = new ArrayList<Card>(3);
+        cards3.add(cards.get(0));
+        cards3.add(cards.get(2));
+        cards3.add(cards.get(3));
+        cardSets.add(new CardSet(i++, cards3));
+        List<Card> cards4 = new ArrayList<Card>(3);
+        cards4.add(cards.get(1));
+        cards4.add(cards.get(2));
+        cards4.add(cards.get(3));
+        cardSets.add(new CardSet(i, cards4));
+    }
+
+    private int recursiveSort(CardSet cardSet, List<CardSet> setsLeft, ArrayList<Integer> arr) {
+        int val = cardSet.value;
+        int index = setsLeft.size() - 1;
+        List<CardSet> noConflict = new ArrayList<CardSet>();
+
+        for (CardSet targetSet : setsLeft) {
+            if (targetSet.equals(cardSet)) {
+                continue;
+            }
+
+            if (!cardSet.conflict(targetSet)) {
+                noConflict.add(targetSet);
+            } else {
+                if (index-- == 0) break;
+            }
+        }
+
+        // recurse for a set in no conflict list
+        if (noConflict.size() > 0) {
+            ArrayList<CardSet> tempConf = new ArrayList<CardSet>(noConflict);
+            List<Integer> values = new ArrayList<Integer>();
+            List<Integer> ids = new ArrayList<Integer>();
+
+            for (CardSet set : noConflict) {
+                tempConf.remove(set);
+                ids.add(set.id);
+                values.add(recursiveSort(set, tempConf, arr));
+            }
+
+            int max = values.get(0);
+            int maxId = ids.get(0);
+            for (int i = 0; i < values.size(); i++) {
+                if (values.get(i) > max) {
+                    maxId = ids.get(i);
+                    max = values.get(i);
+                }
+            }
+
+            arr.add(maxId);
+            val += max;
+        }
+
+        return val;
     }
 }
