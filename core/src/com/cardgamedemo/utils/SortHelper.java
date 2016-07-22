@@ -494,7 +494,7 @@ public class SortHelper {
             cardSets.add(new CardSet(id++, groupSets.get(i)));
 
             if (groupSets.get(i).size() > 3) {
-                groupCombinations(id, cardSets, groupSets.get(i));
+                id = groupCombinations(id, cardSets, groupSets.get(i));
             }
         }
 
@@ -738,7 +738,7 @@ public class SortHelper {
         return total;
     }
 
-    private void groupCombinations(int i, List<CardSet> cardSets, List<Card> cards) {
+    private int groupCombinations(int i, List<CardSet> cardSets, List<Card> cards) {
         List<Card> cards1 = new ArrayList<Card>(3);
         cards1.add(cards.get(0));
         cards1.add(cards.get(1));
@@ -758,7 +758,9 @@ public class SortHelper {
         cards4.add(cards.get(1));
         cards4.add(cards.get(2));
         cards4.add(cards.get(3));
-        cardSets.add(new CardSet(i, cards4));
+        cardSets.add(new CardSet(i++, cards4));
+
+        return i;
     }
 
     private int recursiveSort(CardSet cardSet, List<CardSet> setsLeft, ArrayList<Integer> arr) {

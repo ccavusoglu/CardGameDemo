@@ -117,6 +117,10 @@ public class SortHelperTest {
         //22
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S7"}));
         sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S1", "S2", "S3", "C1", "C2", "C3", "C4", "S4", "H4", "H3", "S7"}));
+
+        sortCases.put(i, mapStrToCards(new String[]{"D7", "S6", "S2", "S3", "D3", "H3", "S4", "C3", "H4", "C4"}));
+        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S3", "D3", "H3", "C3", "S4", "H4", "C4", "S2", "S6", "D7"}));
+
     }
 
     @Test
@@ -163,11 +167,11 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 8; i < 23; i++)
+        for (int i = 8; i < 24; i++)
             sortCasesResults.put(i, sut.sortSmart2(sortCases.get(i)));
 
         // assert
-        for (int i = 8; i < 23; i++)
+        for (int i = 8; i < 24; i++)
             Assert.assertArrayEquals("Failed: " + i, sortCasesResults.get(i).toArray(), sortCasesExpectedResults.get(i).toArray());
     }
 
