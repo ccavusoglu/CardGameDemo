@@ -226,7 +226,7 @@ public class MainControllerTest {
 
         // assert
         Assert.assertTrue(res);
-        verify(sortHelper).sortSmart(list);
+        verify(sortHelper).sortSmart2(list);
     }
 
     @Test

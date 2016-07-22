@@ -107,6 +107,7 @@ public class SortHelper {
 
     // maximum set cover to minimize spare cards total cost
     // cross checks sets (groups & sequences) and finds the maximum coverage by a greedy approach
+    // OBSOLETE
     public List<Card> sortSmart(List<Card> cards) {
         long beginTime = TimeUtils.millis();
 

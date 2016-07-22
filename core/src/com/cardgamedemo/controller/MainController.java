@@ -281,7 +281,7 @@ public class MainController {
         } else if (buttonType == Enums.ButtonType.DRAW_GROUP) {
             hand.setCards(sortHelper.sortInGroups(hand.getCards()));
         } else {
-            hand.setCards(sortHelper.sortSmart(hand.getCards()));
+            hand.setCards(sortHelper.sortSmart2(hand.getCards()));
         }
 
         arrangeCards();
