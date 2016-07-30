@@ -3,10 +3,7 @@ package com.cardgamedemo.utils;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.cardgamedemo.entity.Card;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +18,8 @@ public class SortHelperTest {
     static HashMap<Integer, List<Card>> sortCases;
     static HashMap<Integer, List<Card>> sortCasesResults;
     static HashMap<Integer, List<Card>> sortCasesExpectedResults;
+    static HashMap<Integer, Integer[]>  sortCasesExpectedResultsSetEndIndex;
+    static HashMap<Integer, String>     sortCasesExpectedResultsTemplate;
     SortHelper sut;
 
     @Before
@@ -38,6 +37,8 @@ public class SortHelperTest {
         sortCases = new HashMap<Integer, List<Card>>();
         sortCasesExpectedResults = new HashMap<Integer, List<Card>>();
         sortCasesResults = new HashMap<Integer, List<Card>>();
+        sortCasesExpectedResultsSetEndIndex = new HashMap<Integer, Integer[]>();
+        sortCasesExpectedResultsTemplate = new HashMap<Integer, String>();
 
         // insertion sort with lists
         Integer i = 0;
@@ -116,11 +117,67 @@ public class SortHelperTest {
 
         //22
         sortCases.put(i, mapStrToCards(new String[]{"S2", "S1", "S3", "C1", "C2", "C3", "H3", "C4", "S4", "H4", "S7"}));
-        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S1", "S2", "S3", "C1", "C2", "C3", "C4", "S4", "H4", "H3", "S7"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "C1", "C2", "C3", "C4", "S4", "H4", "H3", "S7"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq, Seq, Grp, Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 9, 11});
 
         sortCases.put(i, mapStrToCards(new String[]{"D7", "S6", "S2", "S3", "D3", "H3", "S4", "C3", "H4", "C4"}));
-        sortCasesExpectedResults.put(i++, mapStrToCards(new String[]{"S3", "D3", "H3", "C3", "S4", "H4", "C4", "S2", "S6", "D7"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "D3", "H3", "C3", "S4", "H4", "C4", "S2", "S6", "D7"}));
+        sortCasesExpectedResultsTemplate.put(i, "Grp, Grp, Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {4, 7, 10});
 
+        sortCases.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "D4", "D5", "D6", "S7", "S8", "S9", "S10"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "D4", "D5", "D6", "S7", "S8", "S9", "S10"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq, Seq, Seq");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 10});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S4", "S5", "S6", "S7", "C6", "H6", "D5", "D6", "D7", "D8"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "S4", "S5", "S6", "C6", "H6", "D5", "D6", "D7", "D8", "S7"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq, Grp, Seq, Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 10, 11});
+
+        //26
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S1", "H3"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H3"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq, Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 4});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S1", "H3", "C3"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "H3", "C3", "S1", "S2"}));
+        sortCasesExpectedResultsTemplate.put(i, "Grp, Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 5});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H3", "D3", "C3"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H3", "D3", "C3"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq,Grp");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 6});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S1", "H3", "D3", "C3", "C11"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H3", "D3", "C3", "C11"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq,Grp,Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 7});
+
+        //30
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S1", "H3", "D3", "C3", "S5", "S6", "S7", "C11"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H3", "D3", "C3", "S5", "S6", "S7", "C11"}));
+        sortCasesExpectedResultsTemplate.put(i, "Seq,Grp,Seq,Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 9, 10});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S1", "H3", "D3", "C4"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "H3", "D3", "S1", "S2", "C4"}));
+        sortCasesExpectedResultsTemplate.put(i, "Grp,Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6});
+
+        //32
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S2", "S11", "H12", "D3", "C4"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "H12", "D3", "S11", "S2", "C4"}));
+        sortCasesExpectedResultsTemplate.put(i, "Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {6});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H12", "D3", "C3", "D1", "H1", "C1", "C2", "H3", "C4"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "D1", "H1", "S3", "D3", "H3", "C1", "C2", "C3", "C4", "S2", "H12"}));
+        sortCasesExpectedResultsTemplate.put(i, "Grp, Grp, Seq,Non");
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[] {3, 6, 10, 12});
     }
 
     @Test
@@ -167,12 +224,83 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 8; i < 24; i++)
+        for (int i = 22; i < 34; i++)
             sortCasesResults.put(i, sut.sortSmart2(sortCases.get(i)));
 
         // assert
-        for (int i = 8; i < 24; i++)
-            Assert.assertArrayEquals("Failed: " + i, sortCasesResults.get(i).toArray(), sortCasesExpectedResults.get(i).toArray());
+        for (int i = 22; i < 34; i++) {
+            Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
+            int currIndex = 0;
+
+            String[] template = sortCasesExpectedResultsTemplate.get(i).split(",");
+            for (int j = 0; j < template.length; j++) {
+                if(template[j].equals("Seq")) {
+                    Assert.assertArrayEquals("Seq. not correct at case: " + i, sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).toArray(),
+                                             sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).toArray());
+                    currIndex = sortCasesExpectedResultsSetEndIndex.get(i)[j];
+                } else if(template[j].equals("Grp")) {
+                    boolean conflict = false;
+                    for (Card card : sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j])) {
+                        if(!(sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).contains(card)))
+                            conflict = true;
+                    }
+
+                    Assert.assertTrue("Grp. not correct at case: " + i, !conflict);
+
+                    currIndex = sortCasesExpectedResultsSetEndIndex.get(i)[j];
+                } else {
+                    boolean conflict = false;
+                    for (Card card : sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j])) {
+                        if(!(sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).contains(card)))
+                            conflict = true;
+                    }
+
+                    Assert.assertTrue("Spare cards not correct at case: " + i, !conflict);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void sortSmart3_GivenAListInput_SortByGroupsAndSequences() throws Exception {
+        // arrange
+
+        // act
+        for (int i = 25; i < 26; i++)
+            sortCasesResults.put(i, sut.sortSmart3(sortCases.get(i)));
+
+        // assert
+        for (int i = 25; i < 26; i++) {
+            Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
+            int currIndex = 0;
+
+            String[] template = sortCasesExpectedResultsTemplate.get(i).split(",");
+            for (int j = 0; j < template.length; j++) {
+                if(template[j].equals("Seq")) {
+                    Assert.assertArrayEquals("Seq. not correct at case: " + i, sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).toArray(),
+                                             sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).toArray());
+                    currIndex = sortCasesExpectedResultsSetEndIndex.get(i)[j];
+                } else if(template[j].equals("Grp")) {
+                    boolean conflict = false;
+                    for (Card card : sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j])) {
+                        if(!(sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).contains(card)))
+                            conflict = true;
+                    }
+
+                    Assert.assertTrue("Grp. not correct at case: " + i, !conflict);
+
+                    currIndex = sortCasesExpectedResultsSetEndIndex.get(i)[j];
+                } else {
+                    boolean conflict = false;
+                    for (Card card : sortCasesExpectedResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j])) {
+                        if(!(sortCasesResults.get(i).subList(currIndex, sortCasesExpectedResultsSetEndIndex.get(i)[j]).contains(card)))
+                            conflict = true;
+                    }
+
+                    Assert.assertTrue("Spare cards not correct at case: " + i, !conflict);
+                }
+            }
+        }
     }
 
     @Test

@@ -7,7 +7,7 @@ import com.cardgamedemo.utils.Enums;
  */
 public class Card {
     private Enums.SuitType suitType;
-    private int            point;
+    private int            value;
     private String         pointString;
     private Enums.CardType cardType;
     private int            order;
@@ -20,7 +20,7 @@ public class Card {
     public Card(Enums.SuitType suitType, int order, Enums.CardType cardType, String pointString) {
         this.suitType = suitType;
         this.order = order;
-        this.point = order > 10 ? 10 : order;
+        this.value = order > 10 ? 10 : order;
         this.cardType = cardType;
         this.pointString = pointString;
     }
@@ -46,8 +46,8 @@ public class Card {
         return order;
     }
 
-    public int getPoint() {
-        return point;
+    public int getValue() {
+        return value;
     }
 
     public String getPointString() {
@@ -61,6 +61,6 @@ public class Card {
     public void setSuitAndOrder(Enums.SuitType suitType, int order) {
         this.suitType = suitType;
         this.order = order;
-        this.point = order > 10 ? 10 : order;
+        this.value = order > 10 ? 10 : order;
     }
 }

@@ -20,7 +20,12 @@ public class CardSet {
         this.id = i;
         this.cards = cards;
         for (Card card : cards)
-            value += card.getPoint();
+            value += card.getValue();
+    }
+
+    public void addCard(Card card) {
+        cards.add(card);
+        value += card.getValue();
     }
 
     public boolean conflict(CardSet set) {
@@ -35,7 +40,7 @@ public class CardSet {
     public String toString() {
         String s = "[" + id + ": ";
         for (Card card : cards)
-            s += card.getSuitType() + "" + card.getOrder() + ",";
+            s += card.getSuitType().toString() + "" + card.getOrder() + ",";
 
         s += " :" + value + "]";
         return s;

@@ -40,12 +40,78 @@ public class SortHelper {
 
             while (m >= 0 && bucketPoints.get(j) > bucketPoints.get(k)) {
                 Collections.swap(bucketsToCompare, m, m + 1);
+                Integer temp = bucketPoints.get(m);
+                bucketPoints.put(m, bucketPoints.get(m + 1));
+                bucketPoints.put(m + 1, temp);
                 m = m - 1;
             }
 
             bucketsToCompare.remove(m + 1);
             bucketsToCompare.add(m + 1, k);
         }
+    }
+
+    public void permute(List<Card> cards, int start, List<List<Card>> allPermutations) {
+        for (int i = start; i < cards.size(); i++) {
+            Collections.swap(cards, i, start);
+            permute(cards, start + 1, allPermutations);
+            Collections.swap(cards, start, i);
+        }
+
+        if (start == cards.size()) allPermutations.add(new ArrayList<Card>(cards));
+    }
+
+    /**
+     * Heap's Algorithm to find permutations
+     * @param cards
+     * @param allPermutations
+     */
+    public void heapPermute(List<Card> cards, int end, List<List<Card>> allPermutations) {
+        for (int i = 0; i < end; i++) {
+            heapPermute(cards, end - 1, allPermutations);
+
+            int j = (end % 2 == 0) ? i : 0;
+
+            Collections.swap(cards, end - 1, j);
+        }
+
+        if (end == 1) allPermutations.add(new ArrayList<Card>(cards));
+    }
+
+    /**
+     * Sorts and returns most valued index
+     * considering one index for each value because the rest indexes with same values are useless
+     *
+     * @param indexList
+     * @param values
+     */
+    public int sortAndReturnIndex(List<Integer> indexList, List<Integer> values) {
+        if (values.size() == 0) return 0;
+
+        List<Integer> valuesToSort = new ArrayList<Integer>();
+        Map<Integer, Integer> indexesToSort = new HashMap<Integer, Integer>();
+
+        for (int j = 0; j < values.size(); j++) {
+            if (indexesToSort.get(values.get(j)) == null) {
+                indexesToSort.put(values.get(j), indexList.get(j));
+                valuesToSort.add(values.get(j));
+            }
+        }
+
+        for (Integer i = 1; i < valuesToSort.size(); ++i) {
+            Integer m = i - 1;
+            Integer k = valuesToSort.get(i);
+
+            while (m >= 0 && valuesToSort.get(m) < k) {
+                Collections.swap(valuesToSort, m, m + 1);
+                m = m - 1;
+            }
+
+            valuesToSort.remove(m + 1);
+            valuesToSort.add(m + 1, k);
+        }
+
+        return indexesToSort.get(valuesToSort.get(0));
     }
 
     public static HashMap<Integer, List<Card>> sortByArray(HashMap<Integer, List<Card>> setBuckets, List<Integer> bucketCosts) {
@@ -241,7 +307,7 @@ public class SortHelper {
                                     else if (firstGroup || firstSetIndex == 1 || firstSetIndex == firstSet.size()) {
                                         // remove this card from this set
                                         firstSet.remove(firstSetCard);
-                                        firstSetCost.set(j, firstSetCost.get(j) - firstSetCard.getPoint());
+                                        firstSetCost.set(j, firstSetCost.get(j) - firstSetCard.getValue());
                                         // add both sets to last list
                                         if (!firstAddedSets.get(j)) {
                                             mapSetsToBuckets.put(first + j, key);
@@ -273,14 +339,14 @@ public class SortHelper {
                                         }
 
                                         for (; m < u; m++) {
-                                            cost += firstSet.get(m).getPoint();
+                                            cost += firstSet.get(m).getValue();
                                         }
 
-                                        if (cost >= secondSetCost.get(k) - secondSetCard.getPoint()) {
+                                        if (cost >= secondSetCost.get(k) - secondSetCard.getValue()) {
                                             // select first set
                                             // remove this card from this set
                                             secondSet.remove(secondSetCard);
-                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getPoint());
+                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getValue());
                                             // add first set
                                             if (!secondAddedSets.get(k)) {
                                                 mapSetsToBuckets.put(second + k, key);
@@ -298,11 +364,11 @@ public class SortHelper {
                                             if (firstSetIndex > firstSet.size() / 2) {
                                                 firstSetIndex--;
                                                 diff = firstSet.size() - firstSetIndex;
-                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getPoint());
+                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getValue());
                                                 while (diff-- > 0) firstSet.remove(firstSet.size() - 1);
                                             } else {
                                                 diff = temp;
-                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getPoint());
+                                                firstSetCost.set(j, firstSetCost.get(j) - cost - firstSetCard.getValue());
                                                 while (diff-- > 0) firstSet.remove(0);
                                             }
                                             firstSetIndex = temp;
@@ -352,7 +418,7 @@ public class SortHelper {
                                         if (secondSetIndex == 1 || secondSetIndex == secondSet.size()) {
                                             secondSet.remove(secondSetIndex - 1);
                                             // re calc. cost.
-                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getPoint());
+                                            secondSetCost.set(k, secondSetCost.get(k) - secondSetCard.getValue());
                                             if (!firstAddedSets.get(j)) {
                                                 mapSetsToBuckets.put(first + j, key);
                                                 setBuckets.put(key++, firstSet);
@@ -379,7 +445,7 @@ public class SortHelper {
                                                 // re calc. cost.
                                                 secondSetIndex--;
                                                 int diff = secondSet.size() - secondSetIndex;
-                                                while (diff-- > 0) secondSetCost.set(k, secondSetCost.get(k) - secondSet.get(secondSetIndex++).getPoint());
+                                                while (diff-- > 0) secondSetCost.set(k, secondSetCost.get(k) - secondSet.get(secondSetIndex++).getValue());
                                             }
                                         } else {
                                             // 1 set should be picked
@@ -545,6 +611,158 @@ public class SortHelper {
         return sortedCards;
     }
 
+    public List<Card> sortSmart3(List<Card> cards) {
+        // TODO: this can be optimized by checking if card list contains any group or sequence in O(n^2) time beforehand and remove any
+        // TODO: permutation that does not include a group or sequence
+
+        // get all permutations
+        List<List<Card>> allPermutations = new ArrayList<List<Card>>();
+        //heapPermute(cards, cards.size(), allPermutations);
+        PermutationHelper permutation = new PermutationHelper(cards);
+
+        boolean orderFlag = false;
+        boolean groupFlag = false;
+        int setCardCount = 1;
+        int setEndIndex = 0;
+        int cardListIndex = 0;
+        int id = 0;
+        CardSet currentSet = null;
+        List<Integer> cardListValue = new ArrayList<Integer>();
+        List<Integer> cardListIndexList = new ArrayList<Integer>();
+
+        long time = System.currentTimeMillis();
+        while (permutation.hasNext()) {
+            List<Card> cardList = permutation.next();
+
+            setCardCount = 1;
+            setEndIndex = 0;
+            currentSet = null;
+            groupFlag = false;
+            orderFlag = false;
+            List<CardSet> sets = new ArrayList<CardSet>();
+
+            for (int i = 1; i < cardList.size(); i++) {
+                // same suits and sequence
+                if (cardList.get(i).getSuitType().equals(cardList.get(i - 1).getSuitType()) && cardList.get(i - 1).getOrder() + 1 == cardList.get(i).getOrder()) {
+                    if (groupFlag) {
+                        setCardCount = 1;
+                        groupFlag = false;
+                        continue;
+                    }
+
+                    orderFlag = true;
+
+                    // if there are spare cards before this set, break
+                    // no sets before
+                    if (sets.size() == 0) {
+                        // this doesn't start at 0
+                        if (i != setCardCount) {
+                            break;
+                        }
+                    } else {
+                        int currIndex = 0;
+                        for (CardSet set : sets)
+                            currIndex += set.cards.size();
+
+                        // this new seq should start right after previous sets
+                        if (currIndex != i - setCardCount) {
+                            break;
+                        }
+                    }
+
+                    setEndIndex = i + 1;
+                    setCardCount++;
+                }
+                // same order thus group
+                else if (cardList.get(i - 1).getOrder() == cardList.get(i).getOrder()) {
+                    if (orderFlag) {
+                        setCardCount = 1;
+                        orderFlag = false;
+                        continue;
+                    }
+
+                    groupFlag = true;
+
+                    // if there are spare cards before this set, break
+                    // no sets before
+                    if (sets.size() == 0) {
+                        // this doesn't start at 0
+                        if (i != setCardCount) {
+                            break;
+                        }
+                    } else {
+                        int currIndex = 0;
+                        for (CardSet set : sets)
+                            currIndex += set.cards.size();
+
+                        // not 4th card of this set
+                        // this new group should start right after previous sets
+                        if (currIndex != i && currIndex != i - setCardCount) {
+                            break;
+                        }
+                    }
+
+                    setEndIndex = i + 1;
+                    setCardCount++;
+                } else {
+                    setCardCount = 1;
+                    setEndIndex = 0;
+                    currentSet = null;
+                    groupFlag = false;
+                    orderFlag = false;
+                }
+
+                if (orderFlag || groupFlag) {
+                    if (setCardCount == 3) {
+                        currentSet = new CardSet(id++, new ArrayList<Card>(cardList.subList(setEndIndex - 3, setEndIndex)));
+                        sets.add(currentSet);
+                    } else if (setCardCount > 3) {
+                        currentSet.addCard(cardList.get(i));
+                    }
+                }
+            }
+
+            // check if sets are placed correctly (ascending value)
+            int cardListTotalValue = 0;
+            if (sets.size() == 1) {
+                cardListTotalValue = sets.get(0).value;
+                cardListIndexList.add(cardListIndex++);
+                cardListValue.add(cardListTotalValue);
+                allPermutations.add(new ArrayList<Card>(cardList));
+            } else if (sets.size() > 1) {
+                boolean orderedValues = true;
+                cardListTotalValue = sets.get(0).value;
+                for (int j = 1; j < sets.size(); j++) {
+                    cardListTotalValue += sets.get(j).value;
+
+                    for (int m = j - 1; m >= 0; m--) {
+                        if (sets.get(j).value < sets.get(j - 1).value) {
+                            orderedValues = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (!orderedValues) continue;
+
+                cardListIndexList.add(cardListIndex++);
+                cardListValue.add(cardListTotalValue);
+                allPermutations.add(new ArrayList<Card>(cardList));
+            }
+        }
+        System.out.println("Time2: " + (System.currentTimeMillis() - time) + " ms " + " Size: " + allPermutations.size());
+
+        // if there isn't any permutation with sets. there are nothing (no group & no sequence) to sort.
+        if (cardListIndexList.size() == 0) return cards;
+
+        time = System.currentTimeMillis();
+        // sort values and get the most valued list
+        int index = sortAndReturnIndex(cardListIndexList, cardListValue);
+        System.out.println("Time3: " + (System.currentTimeMillis() - time) + " ms");
+
+        return allPermutations.get(index);
+    }
+
     // ascending bubble sort
     private void bubbleSort(List<CardSet> list) {
         boolean end = false;
@@ -574,7 +792,7 @@ public class SortHelper {
                 bucketPoints.put(order, 0);
             }
 
-            bucketPoints.put(order, bucketPoints.get(order) + card.getPoint());
+            bucketPoints.put(order, bucketPoints.get(order) + card.getValue());
             buckets.get(order).add(card);
 
             // there's a group in this bucket.
@@ -651,8 +869,10 @@ public class SortHelper {
                 else if (j == buckets.get(i).size()) {
                     // 3 or more ordered left
                     if (groupIndexEnd[i] == buckets.get(i).size() && curOrder > 1) {
-                        sortedBuckets.put(i, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
-                        addedBucketIndex.add(i);
+                        int k = i;
+                        while (sortedBuckets.get(k) != null) k++;
+                        sortedBuckets.put(k, buckets.get(i).subList(groupIndexStart[i], groupIndexEnd[i]));
+                        addedBucketIndex.add(k);
                         //
                     }
                     // 1 card left
@@ -733,7 +953,7 @@ public class SortHelper {
         Integer total = 0;
 
         for (Card card : cards)
-            total += card.getPoint();
+            total += card.getValue();
 
         return total;
     }
@@ -801,7 +1021,14 @@ public class SortHelper {
                 }
             }
 
-            arr.add(maxId);
+            boolean add = true;
+            for (Integer integer : arr)
+                if (integer == maxId) {
+                    add = false;
+                    break;
+                }
+
+            if (add) arr.add(maxId);
             val += max;
         }
 

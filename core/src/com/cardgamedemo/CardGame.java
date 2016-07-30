@@ -65,7 +65,7 @@ public class CardGame extends Game {
         //
         Gdx.app.log("------", "----------------------------");
         for (Card card : cards) {
-            Gdx.app.log("Draw: ", card.getSuitType() + ":" + card.getOrder() + ":" + card.getPointString() + ":" + card.getPoint());
+            Gdx.app.log("Draw: ", card.getSuitType() + ":" + card.getOrder() + ":" + card.getPointString() + ":" + card.getValue());
         }
 
         return cards;

@@ -72,6 +72,13 @@ project(":core") {
 
     sourceSets.test.java.srcDirs = ["test/"]
 
+    test {
+        maxHeapSize = "8192m"
+        testLogging {
+            events 'started', 'passed'
+        }
+    }
+
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.google.dagger:dagger:$daggerVersion"

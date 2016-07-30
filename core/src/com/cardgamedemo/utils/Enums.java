@@ -5,7 +5,12 @@ package com.cardgamedemo.utils;
  */
 public class Enums {
     public enum SuitType {
-        CLUBS, SPADES, HEARTS, DIAMONDS
+        CLUBS, SPADES, HEARTS, DIAMONDS;
+
+        @Override
+        public String toString() {
+            return super.toString().substring(0, 1);
+        }
     }
 
     public enum CardType {
