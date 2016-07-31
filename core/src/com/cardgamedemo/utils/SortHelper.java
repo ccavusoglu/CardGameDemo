@@ -517,6 +517,11 @@ public class SortHelper {
         return sortedCards;
     }
 
+    /**
+     * Smart Sort using a BruteForce algorithm
+     * @param cards
+     * @return
+     */
     public List<Card> sortSmart2(List<Card> cards) {
         ArrayList<Integer> sequentialSetCosts = new ArrayList<Integer>();
         ArrayList<Integer> sequentialSetCount = new ArrayList<Integer>();
@@ -611,19 +616,31 @@ public class SortHelper {
         return sortedCards;
     }
 
+    /**
+     * Smart Sort by finding all possible permutations then comparing them to get the best solution
+     * Algorithm:
+     * Gets a permutation
+     * Checks the permutation if its valid
+     * If it's valid, stores it and its value
+     * Compare all valid permutations values then gets the most valued one
+     *
+     * Complexity: Worst, Best, Average: O(n!) ; n is the input lists size
+     *
+     * This algorithm needs more Heap Space if n > 11. 8192m is not enough!
+     * @param cards
+     * @return
+     */
     public List<Card> sortSmart3(List<Card> cards) {
         // TODO: this can be optimized by checking if card list contains any group or sequence in O(n^2) time beforehand and remove any
         // TODO: permutation that does not include a group or sequence
 
         // get all permutations
         List<List<Card>> allPermutations = new ArrayList<List<Card>>();
-        //heapPermute(cards, cards.size(), allPermutations);
         PermutationHelper permutation = new PermutationHelper(cards);
 
         boolean orderFlag = false;
         boolean groupFlag = false;
         int setCardCount = 1;
-        int setEndIndex = 0;
         int cardListIndex = 0;
         int id = 0;
         CardSet currentSet = null;
@@ -634,8 +651,8 @@ public class SortHelper {
         while (permutation.hasNext()) {
             List<Card> cardList = permutation.next();
 
+            boolean skipPermutation = false;
             setCardCount = 1;
-            setEndIndex = 0;
             currentSet = null;
             groupFlag = false;
             orderFlag = false;
@@ -644,75 +661,61 @@ public class SortHelper {
             for (int i = 1; i < cardList.size(); i++) {
                 // same suits and sequence
                 if (cardList.get(i).getSuitType().equals(cardList.get(i - 1).getSuitType()) && cardList.get(i - 1).getOrder() + 1 == cardList.get(i).getOrder()) {
+                    // prevent sharing same card. e.g: 3-3-'3'-4-5
                     if (groupFlag) {
                         setCardCount = 1;
                         groupFlag = false;
                         continue;
                     }
-
                     orderFlag = true;
-
-                    // if there are spare cards before this set, break
-                    // no sets before
-                    if (sets.size() == 0) {
-                        // this doesn't start at 0
-                        if (i != setCardCount) {
-                            break;
-                        }
-                    } else {
-                        int currIndex = 0;
-                        for (CardSet set : sets)
-                            currIndex += set.cards.size();
-
-                        // this new seq should start right after previous sets
-                        if (currIndex != i - setCardCount) {
-                            break;
-                        }
-                    }
-
-                    setEndIndex = i + 1;
-                    setCardCount++;
                 }
                 // same order thus group
                 else if (cardList.get(i - 1).getOrder() == cardList.get(i).getOrder()) {
+                    // prevent sharing same card. e.g: 1-2-'3'-3-3
                     if (orderFlag) {
                         setCardCount = 1;
                         orderFlag = false;
                         continue;
                     }
-
                     groupFlag = true;
 
-                    // if there are spare cards before this set, break
-                    // no sets before
-                    if (sets.size() == 0) {
-                        // this doesn't start at 0
-                        if (i != setCardCount) {
-                            break;
-                        }
-                    } else {
-                        int currIndex = 0;
-                        for (CardSet set : sets)
-                            currIndex += set.cards.size();
-
-                        // not 4th card of this set
-                        // this new group should start right after previous sets
-                        if (currIndex != i && currIndex != i - setCardCount) {
-                            break;
-                        }
-                    }
-
-                    setEndIndex = i + 1;
-                    setCardCount++;
                 } else {
                     setCardCount = 1;
-                    setEndIndex = 0;
                     currentSet = null;
                     groupFlag = false;
                     orderFlag = false;
                 }
 
                 if (orderFlag || groupFlag) {
+                    // if there are spare cards before this set, break
+                    // no sets before
+                    if (sets.size() == 0) {
+                        // this doesn't start at 0
+                        if (i != setCardCount) {
+                            break;
+                        }
+                    } else {
+                        int currIndex = 0;
+                        for (CardSet set : sets)
+                            currIndex += set.cards.size();
+
+                        // if this is a new seq, it should start right after previous sets
+                        if (orderFlag && currIndex != i - setCardCount && currIndex != i) {
+                            skipPermutation = true;
+                            break;
+                        }
+
+                        // not 4th card of this set
+                        // this new group should start right after previous sets
+                        if (groupFlag && currIndex != i && currIndex != i - setCardCount) {
+                            skipPermutation = true;
+                            break;
+                        }
+                    }
+
+                    int setEndIndex = i + 1;
+                    setCardCount++;
+
                     if (setCardCount == 3) {
                         currentSet = new CardSet(id++, new ArrayList<Card>(cardList.subList(setEndIndex - 3, setEndIndex)));
                         sets.add(currentSet);
@@ -722,6 +725,8 @@ public class SortHelper {
                 }
             }
 
+            if(skipPermutation) continue;
+
             // check if sets are placed correctly (ascending value)
             int cardListTotalValue = 0;
             if (sets.size() == 1) {
@@ -730,27 +735,27 @@ public class SortHelper {
                 cardListValue.add(cardListTotalValue);
                 allPermutations.add(new ArrayList<Card>(cardList));
             } else if (sets.size() > 1) {
-                boolean orderedValues = true;
                 cardListTotalValue = sets.get(0).value;
                 for (int j = 1; j < sets.size(); j++) {
                     cardListTotalValue += sets.get(j).value;
 
                     for (int m = j - 1; m >= 0; m--) {
                         if (sets.get(j).value < sets.get(j - 1).value) {
-                            orderedValues = false;
+                            skipPermutation = true;
                             break;
                         }
                     }
                 }
 
-                if (!orderedValues) continue;
+                // not correctly placed, skip this permutation
+                if (skipPermutation) continue;
 
                 cardListIndexList.add(cardListIndex++);
                 cardListValue.add(cardListTotalValue);
                 allPermutations.add(new ArrayList<Card>(cardList));
             }
         }
-        System.out.println("Time2: " + (System.currentTimeMillis() - time) + " ms " + " Size: " + allPermutations.size());
+        System.out.println("Time Main Loop: " + (System.currentTimeMillis() - time) + " ms " + " Size: " + allPermutations.size());
 
         // if there isn't any permutation with sets. there are nothing (no group & no sequence) to sort.
         if (cardListIndexList.size() == 0) return cards;
@@ -758,7 +763,7 @@ public class SortHelper {
         time = System.currentTimeMillis();
         // sort values and get the most valued list
         int index = sortAndReturnIndex(cardListIndexList, cardListValue);
-        System.out.println("Time3: " + (System.currentTimeMillis() - time) + " ms");
+        System.out.println("Time sortAndReturnIndex: " + (System.currentTimeMillis() - time) + " ms");
 
         return allPermutations.get(index);
     }
