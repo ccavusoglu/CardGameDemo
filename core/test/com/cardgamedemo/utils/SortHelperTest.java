@@ -216,6 +216,17 @@ public class SortHelperTest {
         sortCasesExpectedResultsTemplate.put(i, Arrays.asList(SetType.SEQUENCE, SetType.GROUP, SetType.SEQUENCE));
         sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[]{3, 6, 9});
 
+        sortCases.put(i, mapStrToCards(new String[]{"S3", "S4", "S5", "S6", "C6", "H6", "D5", "D6", "D7"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S3", "S4", "S5", "S6", "C6", "H6", "D5", "D6", "D7"}));
+        sortCasesExpectedResultsTemplate.put(i, Arrays.asList(SetType.SEQUENCE, SetType.GROUP, SetType.SEQUENCE));
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[]{3, 6, 9});
+
+        sortCases.put(i, mapStrToCards(new String[]{"S1", "S2", "S4", "H12", "D3", "C3", "D1", "H11", "C11", "C2", "H5"}));
+        sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "S2", "S4", "H12", "D3", "C3", "D1", "H11", "C11", "C2", "H5"}));
+        sortCasesExpectedResultsTemplate.put(i, Arrays.asList(SetType.NONE));
+        sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[]{11});
+
+        //40
         sortCases.put(i, mapStrToCards(new String[]{"S1", "S2", "S3", "H12", "D3", "C3", "D1", "H1", "C1", "C2", "H3", "C4"}));
         sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "D1", "H1", "S3", "D3", "H3", "C1", "C2", "C3", "C4", "S2", "H12"}));
         sortCasesExpectedResultsTemplate.put(i, Arrays.asList(SetType.GROUP, SetType.GROUP, SetType.SEQUENCE, SetType.NONE));
@@ -225,8 +236,6 @@ public class SortHelperTest {
         sortCasesExpectedResults.put(i, mapStrToCards(new String[]{"S1", "D1", "H1", "S3", "D3", "H3", "C1", "C2", "C3", "C4", "S2", "H12", "C12"}));
         sortCasesExpectedResultsTemplate.put(i, Arrays.asList(SetType.GROUP, SetType.GROUP, SetType.SEQUENCE, SetType.NONE));
         sortCasesExpectedResultsSetEndIndex.put(i++, new Integer[]{3, 6, 10, 13});
-
-        //40
     }
 
     @Test
@@ -260,11 +269,11 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 22; i < 37; i++)
+        for (int i = 22; i < 41; i++)
             sortCasesResults.put(i, sut.sortSmart2(sortCases.get(i)));
 
         // assert
-        for (int i = 22; i < 37; i++) {
+        for (int i = 22; i < 41; i++) {
             Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
             int currIndex = 0;
 
@@ -300,11 +309,11 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 22; i < 37; i++)
+        for (int i = 22; i < 41; i++)
             sortCasesResults.put(i, sut.sortSmart3(sortCases.get(i)));
 
         // assert
-        for (int i = 22; i < 37; i++) {
+        for (int i = 22; i < 41; i++) {
             Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
             int currIndex = 0;
 
