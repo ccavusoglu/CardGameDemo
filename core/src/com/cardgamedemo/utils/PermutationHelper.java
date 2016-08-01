@@ -9,11 +9,15 @@ import java.util.List;
 /**
  * Created by Çağatay Çavuşoğlu on 30.07.2016.
  */
+
+/**
+ * Returns all permutations for given list one by one when requested
+ */
 public class PermutationHelper {
-    private final int size;
+    private final int        size;
     private final List<Card> cards;
-    private final Card[] nextPermutation;
-    private final int[] permutation;
+    private final Card[]     nextPermutation;
+    private final int[]      permutation;
     private boolean next = true;
 
     public PermutationHelper(List<Card> cards) {

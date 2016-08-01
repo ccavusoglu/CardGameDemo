@@ -46,16 +46,16 @@ public class Card {
         return order;
     }
 
-    public int getValue() {
-        return value;
-    }
-
     public String getPointString() {
         return pointString;
     }
 
     public Enums.SuitType getSuitType() {
         return suitType;
+    }
+
+    public int getValue() {
+        return value;
     }
 
     public void setSuitAndOrder(Enums.SuitType suitType, int order) {

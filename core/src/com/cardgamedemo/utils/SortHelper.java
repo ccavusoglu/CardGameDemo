@@ -17,6 +17,24 @@ import java.util.*;
 public class SortHelper {
     private static final int MIN_GROUP_SIZE = 3;
 
+    /**
+     * Heap's Algorithm to find permutations
+     *
+     * @param cards
+     * @param allPermutations
+     */
+    public void heapPermute(List<Card> cards, int end, List<List<Card>> allPermutations) {
+        for (int i = 0; i < end; i++) {
+            heapPermute(cards, end - 1, allPermutations);
+
+            int j = (end % 2 == 0) ? i : 0;
+
+            Collections.swap(cards, end - 1, j);
+        }
+
+        if (end == 1) allPermutations.add(new ArrayList<Card>(cards));
+    }
+
     public static void insertionSort(List<Card> list) {
         for (int i = 1; i < list.size(); ++i) {
             Card card = list.get(i);
@@ -59,23 +77,6 @@ public class SortHelper {
         }
 
         if (start == cards.size()) allPermutations.add(new ArrayList<Card>(cards));
-    }
-
-    /**
-     * Heap's Algorithm to find permutations
-     * @param cards
-     * @param allPermutations
-     */
-    public void heapPermute(List<Card> cards, int end, List<List<Card>> allPermutations) {
-        for (int i = 0; i < end; i++) {
-            heapPermute(cards, end - 1, allPermutations);
-
-            int j = (end % 2 == 0) ? i : 0;
-
-            Collections.swap(cards, end - 1, j);
-        }
-
-        if (end == 1) allPermutations.add(new ArrayList<Card>(cards));
     }
 
     /**
@@ -519,6 +520,7 @@ public class SortHelper {
 
     /**
      * Smart Sort using a BruteForce algorithm
+     *
      * @param cards
      * @return
      */
@@ -617,35 +619,30 @@ public class SortHelper {
     }
 
     /**
-     * Smart Sort by finding all possible permutations then comparing them to get the best solution
+     * Smart Sort by finding all possible permutations one by one and comparing them in order to get the best solution
      * Algorithm:
+     * Loop until no permutation
      * Gets a permutation
      * Checks the permutation if its valid
-     * If it's valid, stores it and its value
-     * Compare all valid permutations values then gets the most valued one
+     * If it's valid and higher valued, stores it and its value
+     * <p/>
+     * Time Complexity: Worst, Best, Average: O(n!) ; n is the input lists size
+     * Space Complexity: O(n) ; n is the input lists size
+     * <p/>
      *
-     * Complexity: Worst, Best, Average: O(n!) ; n is the input lists size
-     *
-     * This algorithm needs more Heap Space if n > 11. 8192m is not enough!
      * @param cards
      * @return
      */
     public List<Card> sortSmart3(List<Card> cards) {
-        // TODO: this can be optimized by checking if card list contains any group or sequence in O(n^2) time beforehand and remove any
-        // TODO: permutation that does not include a group or sequence
-
-        // get all permutations
-        List<List<Card>> allPermutations = new ArrayList<List<Card>>();
         PermutationHelper permutation = new PermutationHelper(cards);
 
         boolean orderFlag = false;
         boolean groupFlag = false;
         int setCardCount = 1;
-        int cardListIndex = 0;
         int id = 0;
         CardSet currentSet = null;
-        List<Integer> cardListValue = new ArrayList<Integer>();
-        List<Integer> cardListIndexList = new ArrayList<Integer>();
+        int maxCardListValue = 0;
+        List<Card> maxCardList = null;
 
         long time = System.currentTimeMillis();
         while (permutation.hasNext()) {
@@ -725,16 +722,15 @@ public class SortHelper {
                 }
             }
 
-            if(skipPermutation) continue;
+            if (skipPermutation) continue;
 
             // check if sets are placed correctly (ascending value)
             int cardListTotalValue = 0;
-            if (sets.size() == 1) {
-                cardListTotalValue = sets.get(0).value;
-                cardListIndexList.add(cardListIndex++);
-                cardListValue.add(cardListTotalValue);
-                allPermutations.add(new ArrayList<Card>(cardList));
-            } else if (sets.size() > 1) {
+
+            // no set. no need to consider this permutation
+            if (sets.size() == 0) {
+                skipPermutation = true;
+            } else {
                 cardListTotalValue = sets.get(0).value;
                 for (int j = 1; j < sets.size(); j++) {
                     cardListTotalValue += sets.get(j).value;
@@ -746,26 +742,22 @@ public class SortHelper {
                         }
                     }
                 }
+            }
 
-                // not correctly placed, skip this permutation
-                if (skipPermutation) continue;
+            if (skipPermutation) continue;
 
-                cardListIndexList.add(cardListIndex++);
-                cardListValue.add(cardListTotalValue);
-                allPermutations.add(new ArrayList<Card>(cardList));
+            if (cardListTotalValue > maxCardListValue) {
+                maxCardList = new ArrayList<Card>(cardList);
+                maxCardListValue = cardListTotalValue;
             }
         }
-        System.out.println("Time Main Loop: " + (System.currentTimeMillis() - time) + " ms " + " Size: " + allPermutations.size());
+        System.out.println("Time Main Loop: " + (System.currentTimeMillis() - time) + " ms ");
 
         // if there isn't any permutation with sets. there are nothing (no group & no sequence) to sort.
-        if (cardListIndexList.size() == 0) return cards;
+        // simply returns input
+        if (maxCardList == null) return cards;
 
-        time = System.currentTimeMillis();
-        // sort values and get the most valued list
-        int index = sortAndReturnIndex(cardListIndexList, cardListValue);
-        System.out.println("Time sortAndReturnIndex: " + (System.currentTimeMillis() - time) + " ms");
-
-        return allPermutations.get(index);
+        return maxCardList;
     }
 
     // ascending bubble sort
