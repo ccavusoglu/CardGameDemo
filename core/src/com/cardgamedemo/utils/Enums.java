@@ -7,6 +7,10 @@ public class Enums {
     public enum SuitType {
         CLUBS, SPADES, HEARTS, DIAMONDS;
 
+        public String fullName() {
+            return super.toString();
+        }
+
         @Override
         public String toString() {
             return super.toString().substring(0, 1);

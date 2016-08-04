@@ -56,7 +56,7 @@ public class AssetHelper {
     }
 
     public TextureRegion getCard(Enums.SuitType suitType, Enums.CardType cardType) {
-        String key = suitType.toString() + cardType.toString();
+        String key = suitType.fullName() + cardType.toString();
         if (cardHashMap.get(key) == null) cardHashMap.put(key, new TextureRegion(gameTextureAtlas.findRegion(key)));
 
         return cardHashMap.get(key);

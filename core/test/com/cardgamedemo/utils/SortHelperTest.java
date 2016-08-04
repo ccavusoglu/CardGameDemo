@@ -269,11 +269,11 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 22; i < 41; i++)
+        for (int i = 22; i < 42; i++)
             sortCasesResults.put(i, sut.sortSmart2(sortCases.get(i)));
 
         // assert
-        for (int i = 22; i < 41; i++) {
+        for (int i = 22; i < 42; i++) {
             Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
             int currIndex = 0;
 
@@ -309,11 +309,11 @@ public class SortHelperTest {
         // arrange
 
         // act
-        for (int i = 22; i < 41; i++)
+        for (int i = 22; i < 42; i++)
             sortCasesResults.put(i, sut.sortSmart3(sortCases.get(i)));
 
         // assert
-        for (int i = 22; i < 41; i++) {
+        for (int i = 22; i < 42; i++) {
             Assert.assertTrue("Input size differ from output", sortCasesResults.get(i).size() == sortCases.get(i).size());
             int currIndex = 0;
 
